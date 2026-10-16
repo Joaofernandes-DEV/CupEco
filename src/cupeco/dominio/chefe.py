@@ -64,6 +64,7 @@ class DadosChefe:
     quadros_transicao: int
     dano_por_contato: bool
     fases: tuple[DadosFase, ...]
+    arena: str = "testes"  # a arena da luta, em arenas.toml
 
 
 def validar_chefe(

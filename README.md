@@ -17,7 +17,7 @@ Projeto de extensão da UNIP. Público: 10 anos ou mais. "CupEco" é o codinome 
 
 ## Situação
 
-🚧 **Em desenvolvimento.** Fase 1 (núcleo) concluída; próxima: Fase 2, a primeira luta contra um chefe. Já dá para jogar a **arena de testes**, com formas simples no lugar da arte: a Dara corre, pula, faz dash, atira com duas armas e faz a Triagem nos resíduos de um lançador, contra um boneco de treino. O estilo da arte, gerada por código, está na [prancha de estilo](docs/prancha-estilo.png) aprovada. O roteiro completo, as decisões e o escopo da V1 estão no [briefing.md](briefing.md); o histórico de cada mudança está no [LOG.md](LOG.md).
+🚧 **Em desenvolvimento.** Fase 1 (núcleo) concluída; Fase 2 (a primeira luta) quase concluída. Já dá para jogar a **luta contra o Dom Obsolescêncio**, ainda com formas simples no lugar da arte: as 3 fases (Torre de Tubos, Enxame Descontinuado e Placa-Mãe), nos modos Normal e Simples, com tela de derrota (progresso e dica) e tela de vitória (nota de A+ a D). A **arena de testes** continua no menu, com um boneco de treino e um lançador de resíduos. O estilo da arte, gerada por código, está na [prancha de estilo](docs/prancha-estilo.png) aprovada. O roteiro completo, as decisões e o escopo da V1 estão no [briefing.md](briefing.md); o histórico de cada mudança está no [LOG.md](LOG.md).
 
 O executável para Windows será publicado nas [releases](https://github.com/Joaofernandes-DEV/CupEco/releases) na entrega da V1.
 
@@ -38,7 +38,13 @@ python -m pip install -e ".[dev,ferramentas]"
 python -m cupeco
 ```
 
-No título, `Enter` abre a arena de testes (ou rode `python -m cupeco --arena`). Para um teste rápido que fecha sozinho: `python -m cupeco --fechar-em 2`.
+No título, escolha a luta contra o Dom Obsolescêncio (depois, o modo) ou a arena de testes. Também dá para abrir direto:
+
+- `python -m cupeco --luta dom_obsolescencio --modo simples`: a luta, no modo Normal (padrão) ou Simples;
+- `python -m cupeco --arena`: a arena de testes;
+- `--semente N`: repete a mesma ordem de ataques;
+- `--depurar`: na luta, `F1` mostra as caixas de colisão e a vida do chefe, e `F2` pula para a próxima fase;
+- `--fechar-em 2`: abre e fecha sozinho (teste rápido).
 
 | Ação | Teclado | Controle (padrão Xbox) |
 |------|---------|------------------------|
@@ -50,7 +56,8 @@ No título, `Enter` abre a arena de testes (ou rode `python -m cupeco --arena`).
 | Travar no lugar para mirar | `Shift` | LB |
 | Trocar de arma | `Tab` | Y |
 | Pausa | `Esc` | Start |
-| Mostrar as caixas de colisão | `F1` | — |
+| Navegar nos menus | setas e `Enter` | direcional e A |
+| Mostrar as caixas de colisão (arena; na luta, com `--depurar`) | `F1` | — |
 
 ## Como desenvolver
 
