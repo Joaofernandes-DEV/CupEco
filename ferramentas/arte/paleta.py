@@ -2,10 +2,18 @@
 
 As cores dos materiais seguem a CONAMA 275/2001 e são as únicas cores fortes do jogo: os
 personagens e cenários usam tons terrosos e apagados para que um resíduo colorido sempre
-se destaque (I4, R3). O domínio terá a mesma tabela na Fase 1 (D15).
+se destaque (I4, R3). As cores dos materiais vêm de `src/cupeco/conteudo/materiais.toml`,
+a mesma tabela que o jogo usa (D15): uma só fonte de verdade para a arte e para as regras.
 """
 
+from cupeco.dominio.materiais import Material, carregar_materiais
+
 Cor = tuple[int, int, int, int]
+
+
+def _cor_do_material(material: Material) -> Cor:
+    return (*carregar_materiais()[material].cor, 255)
+
 
 # --- tinta e papel -------------------------------------------------------------------
 TINTA: Cor = (28, 22, 20, 255)
@@ -14,12 +22,12 @@ PAPEL_FUNDO: Cor = (236, 224, 198, 255)
 SOMBRA: Cor = (28, 22, 20, 60)
 
 # --- materiais (CONAMA 275/2001) -----------------------------------------------------
-PAPEL: Cor = (38, 98, 182, 255)
-PLASTICO: Cor = (206, 44, 40, 255)
-VIDRO: Cor = (36, 140, 72, 255)
-METAL: Cor = (242, 190, 28, 255)
-REJEITO: Cor = (128, 126, 122, 255)
-PERIGOSO: Cor = (240, 122, 18, 255)
+PAPEL = _cor_do_material(Material.PAPEL)
+PLASTICO = _cor_do_material(Material.PLASTICO)
+VIDRO = _cor_do_material(Material.VIDRO)
+METAL = _cor_do_material(Material.METAL)
+REJEITO = _cor_do_material(Material.REJEITO)
+PERIGOSO = _cor_do_material(Material.PERIGOSO)
 
 # --- Dara ----------------------------------------------------------------------------
 PELE: Cor = (150, 96, 64, 255)
