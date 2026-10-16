@@ -302,3 +302,42 @@ def test_mesmos_comandos_dao_o_mesmo_caminho():
             trajeto.append((jogador.corpo.x, jogador.corpo.y, jogador.estado, jogador.mira))
         trajetos.append(trajeto)
     assert trajetos[0] == trajetos[1]
+
+
+# --- tiro e troca de arma (J2) -------------------------------------------------------
+
+TIRO, TROCAR = Botao.TIRO, Botao.TROCAR
+
+
+def test_segurar_o_tiro_dispara_na_direcao_da_mira():
+    jogador = no_chao()
+    eventos = rodar(jogador, segurar(TIRO), 1)
+    assert EventoJogador.TIROU in eventos
+    (tiro,) = jogador.novos_projeteis
+    assert tiro.vx > 0 and tiro.vy == 0
+    cx, cy = jogador.corpo.caixa.centro
+    assert (tiro.x, tiro.y) == (cx + P.distancia_boca, cy)
+
+
+def test_tiro_para_cima_parada():
+    jogador = no_chao()
+    rodar(jogador, segurar(C, TIRO), 1)
+    (tiro,) = jogador.novos_projeteis
+    assert tiro.vx == 0 and tiro.vy < 0
+
+
+def test_nao_atira_durante_o_dash():
+    jogador = no_chao()
+    eventos = rodar(jogador, segurar(DASH, TIRO), P.quadros_dash)
+    assert EventoJogador.TIROU not in eventos
+    assert EventoJogador.TIROU in rodar(jogador, segurar(TIRO), 1)
+
+
+def test_trocar_de_arma_muda_a_lixeira_ativa():
+    jogador = no_chao()
+    assert jogador.arsenal.ativa.material.value == "plastico"
+    eventos = rodar(jogador, segurar(TROCAR), 3)
+    assert eventos.count(EventoJogador.TROCOU_ARMA) == 1
+    assert jogador.arsenal.ativa.material.value == "papel"
+    rodar(jogador, segurar(TIRO), 1)
+    assert len(jogador.novos_projeteis) == 3
