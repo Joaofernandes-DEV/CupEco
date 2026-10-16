@@ -2,7 +2,7 @@
 
 Diagnóstico, decisões e roteiro da primeira versão. Este documento vem antes do código (Regra 1) e é atualizado quando uma decisão muda; cada mudança é registrada no [LOG.md](LOG.md).
 
-> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1); próxima: Fase 1 (núcleo e prancha de estilo).
+> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1). Fase 1 (núcleo e prancha de estilo) em andamento, com o plano aprovado na seção 10.1 e as decisões D23 a D27.
 
 ---
 
@@ -251,6 +251,11 @@ Valem para todo texto, fato, imagem, som e mecânica, e são conferidos na revis
 | D20 | Qual é o título do jogo? | **Triagem**. "CupEco" continua como nome do repositório e do pacote (`cupeco`) | O "Cup" lembra diretamente a marca Cuphead (R2); "Triagem" nomeia a mecânica central. Nenhum jogo com esse título foi encontrado em 2026-10-16 |
 | D21 | Qual é a cidade? | **Aterrópolis**, megacidade brasileira fictícia | Nenhum lugar real com esse nome foi encontrado em 2026-10-16; o nome já conta o problema da cidade |
 | D22 | Haverá revisão externa? | Sim: um professor ou professora de Biologia, Engenharia Ambiental ou Química revisa os fatos antes da Fase 7, e um grupo do público da extensão testa o jogo antes da release | Fatos corretos (R6) e dificuldade medida com o público real (R5) |
+| D23 | Como garantir que a mesma luta sai igual em qualquer máquina? | O domínio usa números decimais só com as quatro operações (constantes como o seno de 15° ficam escritas no código, sem `math.sin` durante o jogo) e sorteia com `random.Random(semente)` | Resultado idêntico no Windows, no Linux do CI e em qualquer versão do Python suportada (D8) |
+| D24 | Como o domínio recebe os controles? | **Comandos** = conjunto de botões segurados em cada passo; o domínio calcula quando um botão acabou de ser apertado. Um **replay** é a semente mais a lista de comandos | Teclado e controle viram a mesma coisa; replays pequenos e testes simples |
+| D25 | Como contar o Medidor de Reciclagem? | Em **pontos inteiros**: 100 pontos = 1 fardo; triagem certa +100, de outra cor +50 | Sem "meio fardo" em número decimal; conta exata e testável (D12) |
+| D26 | Onde ficam os valores de jogo? | Em TOML (`src/cupeco/conteudo/`), lidos com validação estrita: chave desconhecida ou faltando é erro | Equilíbrio ajustado sem mexer no código; erro de digitação não passa em silêncio |
+| D27 | Como entram as ferramentas de arte? | Pillow em versão fixa no extra `[ferramentas]` do `pyproject.toml`; a prancha de estilo é gerada em `docs/prancha-estilo.png` | Arte como código reproduzível (D10, D19); o jogo em si não depende do Pillow |
 
 **Perguntas respondidas na revisão de 2026-10-16:**
 
@@ -305,3 +310,22 @@ Cada fase termina com o jogo funcionando na `main` (Regra 2). Até a Fase 2 tudo
 | 8. Entrega | Portfólio e release | — | README com GIF, CI verde, `release.yml`, executável na release v1.0.0 conferido e LOG completo |
 
 Marque ✅ na fase ao concluí-la e registre no LOG.
+
+### 10.1 Plano da Fase 1 (aprovado em 2026-10-16)
+
+Um PR por item, cada um com testes, entrada no LOG e CI verde. A prancha vem primeiro porque é o maior risco e depende da aprovação do João; enquanto ela é avaliada, os PRs 2 a 7 seguem, porque não dependem dela.
+
+| # | Branch | Entrega | Itens |
+|---|--------|---------|-------|
+| 0 | `docs/plano-fase-1` | Este plano e as decisões D23 a D27 | — |
+| 1 | `feat/prancha-de-estilo` | Biblioteca de traço (Bézier, membros de "mangueira", olhos *pie-cut*, "linha viva"); Dara em 3 poses, os 6 resíduos com cor, ícone e silhueta e um pedaço de cenário; aprovação do João | D19, D27, R1, I1, I4 |
+| 2 | `feat/dados-e-materiais` | Leitor de TOML com validação; materiais da CONAMA com cor, ícone e tipo (reciclável, rejeito, perigoso); teste de que nenhum material depende só de cor | D15, D26 |
+| 3 | `feat/fisica` | Caixas de colisão, gravidade, chão e plataformas atravessáveis por baixo, colisão resolvida eixo por eixo | — |
+| 4 | `feat/jogador-movimento` | Comandos; Dara corre, pula com altura variável (com tolerância na beirada e pulo guardado antes de pousar), agacha, faz dash (1 no ar, sem invencibilidade), trava a posição e mira em 8 direções | J1, D14, D24 |
+| 5 | `feat/armas-e-projeteis` | Plástico (rajada) e Papel (leque) em dados, cadência, troca de arma, projéteis com tempo de vida, tiros EX | J2 |
+| 6 | `feat/triagem-e-medidor` | Tabela 5.2 completa; Medidor com EX e Super; vida 3, invencibilidade após dano, Dara derrotada | J3, J4, J5, D12, D25 |
+| 7 | `feat/batalha-e-replay` | `Batalha` com passo fixo, semente e eventos; boneco de treino e lançador de resíduos de todas as cores; replay em JSON e teste de que a mesma luta repetida dá o mesmo resultado | D8, D23 |
+| 8 | `feat/arena-de-testes` | Tela jogável com retângulos (resíduos com letra e ícone), HUD provisório, teclado e controle, pausa (continuar, reiniciar, sair) e F1 para mostrar as caixas de colisão; teste do João | J7, I8 |
+| 9 | `docs/log-fase-1` | ✅ na Fase 1 e registro final | — |
+
+Se não houver um controle de videogame para o teste manual, o suporte a controle é testado com um controle simulado e conferido depois.
