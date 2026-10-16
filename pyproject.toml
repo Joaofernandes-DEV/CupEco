@@ -25,6 +25,10 @@ cupeco = "cupeco.__main__:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+# Dados revisáveis do jogo (D26) vão junto no pacote.
+"cupeco.conteudo" = ["*.toml"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
