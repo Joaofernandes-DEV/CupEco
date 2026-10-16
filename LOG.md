@@ -48,3 +48,19 @@ Modelo:
 - Testes: 0 → 10 (versão, janela na resolução lógica, Esc encerra, `--fechar-em`, loop em passos fixos, quatro casos do relógio de passo fixo e domínio sem pygame).
 - Testado localmente: `ruff check`, `ruff format --check` e `pytest` passando no Windows com Python 3.11.8 e pygame-ce 2.5.8; captura da tela de título conferida (acentos de "Aterrópolis" corretos). Falta o teste do João abrindo o jogo.
 - Próximos passos: commits por arquivo, push, PR da Fase 0, CI verde no GitHub e proteção da `main`.
+
+### 2026-10-16 12:51 — Fase 0 concluída: CI verde e `main` protegida
+
+**Feito:**
+- Commit inicial vazio na `main`; a Fase 0 entrou pelo PR #1 (`chore/fase-0-fundacao`, 27 commits, um por arquivo), com merge commit, e a branch foi apagada.
+- CI verde no PR #1 nos 4 jobs: Ubuntu 24.04 com Python 3.11, 3.12 e 3.13 e Windows com Python 3.11.
+- Proteção da `main` no GitHub: Pull Request obrigatório (0 aprovações), os 4 checks `Lint e testes (…)` exigidos, branch em dia com a `main`, sem force-push e sem exclusão; o administrador pode ignorar em emergência.
+- Auto-fix do app ligado para o PR #1, a pedido do João.
+- Fase 0 marcada com ✅ no roteiro do briefing; situação atualizada no briefing e no README.
+
+**Arquivos:** `briefing.md`, `README.md`, `LOG.md`.
+
+**Motivo / observações:**
+- Fecha a Fase 0 (Regras 2 e 7). Testes: 10 → 10 (só documentação).
+- Ao mudar a matriz do CI, atualizar a lista de checks exigidos na proteção da `main`.
+- Próximo: Fase 1 (núcleo: física, Dara, armas, Triagem, Medidor e dano no domínio, arena de testes e prancha de estilo, D19).
