@@ -210,3 +210,26 @@ Modelo:
 - Teste de replay: uma luta de 900 quadros com comandos aleatórios, gravada, convertida para JSON, lida de volta e reproduzida, termina no mesmo estado e com os mesmos eventos em cada passo. Outro teste roda 1200 quadros duas vezes e compara.
 - Os testes do CI rodam em Linux e Windows, então a repetição é conferida nos dois sistemas.
 - Próximo: PR 8, `feat/arena-de-testes` (a primeira tela jogável).
+
+### 2026-10-16 14:24 — Arena de testes jogável
+
+**Feito:**
+- PR #10 (batalha e replay) mergeado com o CI verde.
+- `ui/entrada.py`: teclado e controle (padrão Xbox, pela API GameController do SDL) viram o mesmo conjunto de botões segurados (D24, I8). Analógico com zona morta de metade do curso; gatilho direito também atira; Esc e Start pausam. Controles conectados ou desconectados durante o jogo são reconhecidos.
+- `estados/arena.py`: a primeira tela jogável, com formas simples no lugar da arte: plataformas, boneco de treino com o dano somado, a Dara (pisca quando invencível; muda de cor no dano, no Super e na derrota), o canhão na direção da mira e na cor da lixeira ativa, os tiros e os resíduos.
+- Leitura sem depender de cor já na arena (I4, R3): cada resíduo tem a cor da CONAMA e uma sigla; os recicláveis têm halo claro e liso, o rejeito e o perigoso têm contorno serrilhado.
+- HUD: vida, os 5 fardos do Medidor (com o fardo em andamento), a arma e a lixeira ativas e a contagem de triagens.
+- Avisos educativos na hora da Triagem: "Plástico na lixeira vermelha: +1 fardo!", "Vidro é da lixeira verde: só +½ fardo", "Pilha é resíduo perigoso: não se separa, vai para coleta especial!", "Rejeito não se separa: misturado ou contaminado, vai para o aterro" (D17).
+- Pausa (continuar, reiniciar, sair para o título), "tentar de novo" imediato depois da derrota (I6) e F1 para mostrar as caixas de colisão, o estado da Dara, o quadro e o FPS.
+- O `Jogo` passa a ter a entrada compartilhada; o título leva à arena com Enter (ou Z, ou A); `--arena` e `--semente N` no `python -m cupeco`.
+- A Dara guarda o material do último resíduo que encostou nela (`ultimo_residuo`), para a interface explicar a Triagem.
+- README com a situação da Fase 1 e a tabela de controles.
+
+**Arquivos:** `src/cupeco/ui/entrada.py`, `src/cupeco/estados/arena.py`, `tests/test_arena.py` (novos), `src/cupeco/jogo.py`, `src/cupeco/estados/titulo.py`, `src/cupeco/__main__.py`, `src/cupeco/dominio/jogador.py`, `README.md`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 8 do plano da Fase 1 (J7, I8, I4, I6). Testes: 187 → 204 (teclado e controle com objetos falsos, analógico na zona morta, pausa por Esc e Start, título → arena, tiros no boneco, pausa que congela, reiniciar, sair, F1, derrota e "tentar de novo", os quatro avisos da Triagem e `--arena`).
+- Conferido pelo Claude numa captura da arena no meio de uma luta; corrigido o texto de ajuda que ficava ilegível sobre o chão escuro.
+- **Testado à mão pelo João**: jogou a arena e aprovou ("está bom"); os valores iniciais de movimento, tiro e Triagem ficam como estão por ora.
+- Não conferido: o controle de videogame com um aparelho real (testado só com controle simulado).
+- Próximo: PR 9, `docs/log-fase-1` (✅ na Fase 1).
