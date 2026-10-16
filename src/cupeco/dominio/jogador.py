@@ -19,6 +19,7 @@ from cupeco.dominio.armas import Arsenal, boca_do_canhao, disparar_ex
 from cupeco.dominio.comandos import Botao, Comandos, Controle, Direcao
 from cupeco.dominio.dados import DadosInvalidos, converter, ler_toml
 from cupeco.dominio.fisica import Corpo, Plataforma, apoios, mover
+from cupeco.dominio.materiais import Material
 from cupeco.dominio.medidor import Medidor
 from cupeco.dominio.projeteis import Dono, Projetil
 from cupeco.dominio.triagem import (
@@ -164,6 +165,8 @@ class Jogador:
         self._atordoada = 0
         self._invencivel = 0
         self._super_restante = 0
+        # Material do último resíduo que encostou na Dara (para a interface explicar a Triagem).
+        self.ultimo_residuo: Material | None = None
 
     # --- consultas ------------------------------------------------------------------
 
@@ -401,6 +404,7 @@ class Jogador:
             raise ValueError("só projéteis inimigos tocam a Dara")
         if self.invencivel:
             return Toque(remover_projetil=False)
+        self.ultimo_residuo = projetil.material
         if self.em_triagem and projetil.material is not None:
             resolucao = resolver(projetil.material, self.arsenal.ativa.material, self.regras)
             if resolucao.separou:
