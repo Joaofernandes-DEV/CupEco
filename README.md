@@ -17,7 +17,7 @@ Projeto de extensão da UNIP. Público: 10 anos ou mais. "CupEco" é o codinome 
 
 ## Situação
 
-🚧 **Em desenvolvimento: Fase 0 (fundação).** A janela abre com uma tela de título provisória. O roteiro completo, as decisões e o escopo da V1 estão no [briefing.md](briefing.md); o histórico de cada mudança está no [LOG.md](LOG.md).
+🚧 **Em desenvolvimento.** Fase 0 (fundação) concluída: a janela abre com uma tela de título provisória. Próxima: Fase 1 (Dara e o combate no domínio, arena de testes e prancha de estilo). O roteiro completo, as decisões e o escopo da V1 estão no [briefing.md](briefing.md); o histórico de cada mudança está no [LOG.md](LOG.md).
 
 O executável para Windows será publicado nas [releases](https://github.com/Joaofernandes-DEV/CupEco/releases) na entrega da V1.
 
