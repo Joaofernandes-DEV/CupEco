@@ -17,7 +17,7 @@ Projeto de extensão da UNIP. Público: 10 anos ou mais. "CupEco" é o codinome 
 
 ## Situação
 
-🚧 **Em desenvolvimento.** Fase 0 (fundação) concluída: a janela abre com uma tela de título provisória. Próxima: Fase 1 (Dara e o combate no domínio, arena de testes e prancha de estilo). O roteiro completo, as decisões e o escopo da V1 estão no [briefing.md](briefing.md); o histórico de cada mudança está no [LOG.md](LOG.md).
+🚧 **Em desenvolvimento: Fase 1 (núcleo).** Já dá para jogar a **arena de testes**, com formas simples no lugar da arte: a Dara corre, pula, faz dash, atira com duas armas e faz a Triagem nos resíduos de um lançador, contra um boneco de treino. O estilo da arte, gerada por código, está na [prancha de estilo](docs/prancha-estilo.png) aprovada. O roteiro completo, as decisões e o escopo da V1 estão no [briefing.md](briefing.md); o histórico de cada mudança está no [LOG.md](LOG.md).
 
 O executável para Windows será publicado nas [releases](https://github.com/Joaofernandes-DEV/CupEco/releases) na entrega da V1.
 
@@ -38,7 +38,19 @@ python -m pip install -e ".[dev,ferramentas]"
 python -m cupeco
 ```
 
-`Esc` fecha o jogo. Para um teste rápido que fecha sozinho: `python -m cupeco --fechar-em 2`.
+No título, `Enter` abre a arena de testes (ou rode `python -m cupeco --arena`). Para um teste rápido que fecha sozinho: `python -m cupeco --fechar-em 2`.
+
+| Ação | Teclado | Controle (padrão Xbox) |
+|------|---------|------------------------|
+| Mover e mirar | setas | analógico esquerdo ou direcional |
+| Pular; no ar, Triagem | `Z` | A |
+| Atirar | `X` | X ou gatilho direito |
+| Dash | `C` | RB |
+| EX; com o Medidor cheio, Super | `V` | B |
+| Travar no lugar para mirar | `Shift` | LB |
+| Trocar de arma | `Tab` | Y |
+| Pausa | `Esc` | Start |
+| Mostrar as caixas de colisão | `F1` | — |
 
 ## Como desenvolver
 
