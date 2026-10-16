@@ -2,7 +2,7 @@
 
 Diagnóstico, decisões e roteiro da primeira versão. Este documento vem antes do código (Regra 1) e é atualizado quando uma decisão muda; cada mudança é registrada no [LOG.md](LOG.md).
 
-> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1). Fase 1 (núcleo e prancha de estilo) em andamento, com o plano aprovado na seção 10.1 e as decisões D23 a D27.
+> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1). Fase 1 (núcleo e prancha de estilo) concluída em 2026-10-16 (PRs #3 a #11), com o plano da seção 10.1 e as decisões D23 a D27; pendente só conferir um controle de videogame real na arena. Próxima: Fase 2 (primeira luta, Dom Obsolescêncio com formas simples).
 
 ---
 
@@ -300,7 +300,7 @@ Cada fase termina com o jogo funcionando na `main` (Regra 2). Até a Fase 2 tudo
 | Fase | Foco | Itens | Pronto quando… |
 |------|------|-------|----------------|
 | 0. Fundação ✅ | Repositório, esqueleto, lint, CI, documentos | D1 a D7, R13 | O jogo abre e fecha sem erro (`--fechar-em`); lint e CI passando; `main` protegida; CLAUDE.md, CONTRIBUTING, README, LOG e licenças criados |
-| 1. Núcleo | Jogador e combate no domínio; prancha de estilo | D8, D12, D14, D15, D19, J1 a J5, J7 | Física, Dara, armas, Triagem, Medidor e dano modelados e testados sem janela (matriz da Triagem e replay); uma **arena de testes** com retângulos pode ser jogada no teclado e no controle; **prancha de estilo aprovada pelo João** |
+| 1. Núcleo ✅ | Jogador e combate no domínio; prancha de estilo | D8, D12, D14, D15, D19, J1 a J5, J7 | Física, Dara, armas, Triagem, Medidor e dano modelados e testados sem janela (matriz da Triagem e replay); uma **arena de testes** com retângulos pode ser jogada no teclado e no controle; **prancha de estilo aprovada pelo João** |
 | 2. Primeira luta | Dom Obsolescêncio com formas simples | J6, J8, J13, J14, J15, D13, D17, R5 | As 3 fases do Dom podem ser jogadas do início ao fim nos dois modos, com padrões em dados, avisos testados, tela de derrota com progresso e "Você sabia?", e tela de vitória com nota |
 | 3. Arte e som | Pipeline e primeira luta com arte final | D10, D11, I1 a I9, I11, I12, R2, R3, R4, R9, R11, R12 | Geradores de arte funcionando e conferidos no CI; Dara e Dom Obsolescêncio com arte final; efeito de filme, HUD, sons e trilha; 60 FPS medidos; **demonstração pronta para a extensão** |
 | 4. Barão Fuligem | Segundo chefe | J9 | As 3 fases jogáveis com formas simples, depois com arte final, nos dois modos, a 60 FPS |
@@ -311,21 +311,21 @@ Cada fase termina com o jogo funcionando na `main` (Regra 2). Até a Fase 2 tudo
 
 Marque ✅ na fase ao concluí-la e registre no LOG.
 
-### 10.1 Plano da Fase 1 (aprovado em 2026-10-16)
+### 10.1 Plano da Fase 1 (aprovado e concluído em 2026-10-16)
 
 Um PR por item, cada um com testes, entrada no LOG e CI verde. A prancha vem primeiro porque é o maior risco e depende da aprovação do João; enquanto ela é avaliada, os PRs 2 a 7 seguem, porque não dependem dela.
 
 | # | Branch | Entrega | Itens |
 |---|--------|---------|-------|
-| 0 | `docs/plano-fase-1` | Este plano e as decisões D23 a D27 | — |
-| 1 | `feat/prancha-de-estilo` | Biblioteca de traço (Bézier, membros de "mangueira", olhos *pie-cut*, "linha viva"); Dara em 3 poses, os 6 resíduos com cor, ícone e silhueta e um pedaço de cenário; aprovação do João | D19, D27, R1, I1, I4 |
-| 2 | `feat/dados-e-materiais` | Leitor de TOML com validação; materiais da CONAMA com cor, ícone e tipo (reciclável, rejeito, perigoso); teste de que nenhum material depende só de cor | D15, D26 |
-| 3 | `feat/fisica` | Caixas de colisão, gravidade, chão e plataformas atravessáveis por baixo, colisão resolvida eixo por eixo | — |
-| 4 | `feat/jogador-movimento` | Comandos; Dara corre, pula com altura variável (com tolerância na beirada e pulo guardado antes de pousar), agacha, faz dash (1 no ar, sem invencibilidade), trava a posição e mira em 8 direções | J1, D14, D24 |
-| 5 | `feat/armas-e-projeteis` | Plástico (rajada) e Papel (leque) em dados, cadência, troca de arma, projéteis com tempo de vida, tiros EX | J2 |
-| 6 | `feat/triagem-e-medidor` | Tabela 5.2 completa; Medidor com EX e Super; vida 3, invencibilidade após dano, Dara derrotada | J3, J4, J5, D12, D25 |
-| 7 | `feat/batalha-e-replay` | `Batalha` com passo fixo, semente e eventos; boneco de treino e lançador de resíduos de todas as cores; replay em JSON e teste de que a mesma luta repetida dá o mesmo resultado | D8, D23 |
-| 8 | `feat/arena-de-testes` | Tela jogável com retângulos (resíduos com letra e ícone), HUD provisório, teclado e controle, pausa (continuar, reiniciar, sair) e F1 para mostrar as caixas de colisão; teste do João | J7, I8 |
-| 9 | `docs/log-fase-1` | ✅ na Fase 1 e registro final | — |
+| 0 ✅ | `docs/plano-fase-1` (PR #3) | Este plano e as decisões D23 a D27 | — |
+| 1 ✅ | `feat/prancha-de-estilo` (PR #4) | Biblioteca de traço (Bézier, membros de "mangueira", olhos *pie-cut*, "linha viva"); Dara em 3 poses, os 6 resíduos com cor, ícone e silhueta e um pedaço de cenário; aprovação do João | D19, D27, R1, I1, I4 |
+| 2 ✅ | `feat/dados-e-materiais` (PR #5) | Leitor de TOML com validação; materiais da CONAMA com cor, ícone e tipo (reciclável, rejeito, perigoso); teste de que nenhum material depende só de cor | D15, D26 |
+| 3 ✅ | `feat/fisica` (PR #6) | Caixas de colisão, gravidade, chão e plataformas atravessáveis por baixo, colisão resolvida eixo por eixo | — |
+| 4 ✅ | `feat/jogador-movimento` (PR #7) | Comandos; Dara corre, pula com altura variável (com tolerância na beirada e pulo guardado antes de pousar), agacha, faz dash (1 no ar, sem invencibilidade), trava a posição e mira em 8 direções | J1, D14, D24 |
+| 5 ✅ | `feat/armas-e-projeteis` (PR #8) | Plástico (rajada) e Papel (leque) em dados, cadência, troca de arma, projéteis com tempo de vida, tiros EX | J2 |
+| 6 ✅ | `feat/triagem-e-medidor` (PR #9) | Tabela 5.2 completa; Medidor com EX e Super; vida 3, invencibilidade após dano, Dara derrotada | J3, J4, J5, D12, D25 |
+| 7 ✅ | `feat/batalha-e-replay` (PR #10) | `Batalha` com passo fixo, semente e eventos; boneco de treino e lançador de resíduos de todas as cores; replay em JSON e teste de que a mesma luta repetida dá o mesmo resultado | D8, D23 |
+| 8 ✅ | `feat/arena-de-testes` (PR #11) | Tela jogável com retângulos (resíduos com letra e ícone), HUD provisório, teclado e controle, pausa (continuar, reiniciar, sair) e F1 para mostrar as caixas de colisão; teste do João | J7, I8 |
+| 9 ✅ | `docs/log-fase-1` | ✅ na Fase 1 e registro final | — |
 
 Se não houver um controle de videogame para o teste manual, o suporte a controle é testado com um controle simulado e conferido depois.
