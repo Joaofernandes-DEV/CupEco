@@ -1,0 +1,48 @@
+# Arenas das lutas (D26). Por enquanto, só a arena de testes da Fase 1.
+#
+# Coordenadas em pixels lógicos (1280×720), y crescendo para baixo. Caixas como
+# [x, y, largura, altura], com x e y no canto superior esquerdo.
+
+[testes]
+nome = "Arena de testes"
+largura = 1280.0
+altura = 720.0
+# Onde a Dara começa: borda esquerda da caixa e altura dos pés.
+inicio = [160.0, 640.0]
+# Projéteis que saem desta folga além da tela somem.
+margem = 120.0
+
+[[testes.plataformas]]
+caixa = [-40.0, 640.0, 1360.0, 80.0]  # chão
+atravessavel = false
+
+[[testes.plataformas]]
+caixa = [-40.0, -400.0, 40.0, 1120.0]  # parede da esquerda
+atravessavel = false
+
+[[testes.plataformas]]
+caixa = [1280.0, -400.0, 40.0, 1120.0]  # parede da direita
+atravessavel = false
+
+[[testes.plataformas]]
+caixa = [240.0, 470.0, 220.0, 16.0]  # tábua da esquerda
+atravessavel = true
+
+[[testes.plataformas]]
+caixa = [700.0, 470.0, 220.0, 16.0]  # tábua da direita
+atravessavel = true
+
+# Boneco de treino: não se mexe, não machuca e soma o dano recebido.
+[testes.alvo]
+caixa = [1060.0, 480.0, 110.0, 160.0]
+
+# Lançador de resíduos: de tempos em tempos, atira um resíduo para a esquerda, numa das
+# alturas, sorteando o material entre os 6 e o ataque "sem material" (que só machuca).
+[testes.lancador]
+x = 1250.0
+alturas = [610.0, 560.0, 430.0, 330.0]
+quadros_entre_lancamentos = 45
+velocidade = 6.0
+tamanho = 44.0
+dano = 1
+quadros_de_vida = 400
