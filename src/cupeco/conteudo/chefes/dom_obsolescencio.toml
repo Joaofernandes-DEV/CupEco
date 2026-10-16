@@ -1,0 +1,173 @@
+# Dom Obsolescêncio, o primeiro chefe (J8): lixo eletrônico e obsolescência programada.
+#
+# Unidades: pixels lógicos (1280×720, y para baixo), passos de 1/60 s, vida e dano em
+# pontos inteiros. Luta na arena "dom" (arenas.toml), com o chão em y = 640.
+# Valores do Normal; o Simples é aplicado por cima (modos.toml, D31). Valores iniciais,
+# ajustados com o João quando a luta estiver na tela (PR 7 da Fase 2).
+#
+# Peças de ataque (dominio/ataques.py): rajada, leque, mirado, chuva (pode explodir no
+# chão), zona, inimigos e barra. Todo ataque tem pelo menos 20 quadros de aviso (J6).
+# Materiais: os resíduos separáveis têm a cor da CONAMA 275/2001 (metal, amarelo; papel,
+# azul); "perigoso" (laranja) não se separa; "comum" só machuca.
+
+nome = "Dom Obsolescêncio"
+vida = 2000
+quadros_transicao = 60
+dano_por_contato = true
+
+# --- Fase 1: Torre de Tubos -----------------------------------------------------------
+# Uma pilha de TVs de tubo parada à direita.
+
+[[fases]]
+nome = "Torre de Tubos"
+comeca_em = 100
+largura = 200.0
+altura = 360.0
+rota = [[1130.0, 460.0]]
+velocidade = 0.0
+
+# Raios de pixel saindo das telas, em três alturas: pular o baixo, agachar no do meio,
+# ficar no chão no alto (ou sair da tábua).
+[[fases.ataques]]
+nome = "Raios de Pixel"
+tipo = "rajada"
+aviso = 30
+duracao = 60
+espera = 40
+intervalo = 15
+velocidade = 8.0
+tamanho = 36.0
+origem = [1010.0, 460.0]
+alturas = [610.0, 540.0, 440.0]
+
+# Um chicote de cabo varre o chão: pular por cima ou subir numa tábua.
+[[fases.ataques]]
+nome = "Chicote de Cabo"
+tipo = "zona"
+aviso = 40
+duracao = 20
+espera = 40
+area = [0.0, 600.0, 1030.0, 40.0]
+
+# A coroa de antenas de metal cai em pedaços amarelos: metal, separável na Triagem.
+[[fases.ataques]]
+nome = "Coroa de Antenas"
+tipo = "chuva"
+aviso = 40
+duracao = 1
+espera = 50
+quantidade = 4
+velocidade = 6.0
+tamanho = 40.0
+faixa = [60.0, 1000.0]
+materiais = ["metal"]
+
+# --- Fase 2: Enxame Descontinuado -----------------------------------------------------
+# O núcleo voa pela arena soltando celulares e baterias.
+
+[[fases]]
+nome = "Enxame Descontinuado"
+comeca_em = 66
+largura = 150.0
+altura = 150.0
+rota = [[1050.0, 260.0], [820.0, 200.0], [1050.0, 380.0]]
+velocidade = 2.0
+
+# Celulares voadores: perseguem a Dara, machucam no contato e caem com tiros (D34).
+[[fases.ataques]]
+nome = "Celulares"
+tipo = "inimigos"
+aviso = 30
+duracao = 60
+espera = 60
+intervalo = 30
+quantidade = 2
+velocidade = 2.5
+tamanho = 44.0
+vida_inimigo = 8
+
+# Baterias estufadas caem e explodem no chão. São resíduo perigoso (laranja): tentar a
+# Triagem nelas machuca. O ponto da queda aparece no aviso.
+[[fases.ataques]]
+nome = "Baterias Estufadas"
+tipo = "chuva"
+aviso = 45
+duracao = 1
+espera = 60
+quantidade = 3
+velocidade = 5.0
+tamanho = 34.0
+faixa = [80.0, 1180.0]
+materiais = ["perigoso"]
+explode_em = 640.0
+explosao = [140.0, 90.0, 24]
+
+# Manuais de papel atirados na direção da Dara: papel, separável na Triagem.
+[[fases.ataques]]
+nome = "Manuais de Papel"
+tipo = "mirado"
+aviso = 30
+duracao = 30
+espera = 40
+intervalo = 15
+velocidade = 7.0
+tamanho = 40.0
+materiais = ["papel"]
+
+# --- Fase 3: Placa-Mãe ----------------------------------------------------------------
+# Uma placa-mãe gigante no alto; o chão vira trilhas elétricas.
+
+[[fases]]
+nome = "Placa-Mãe"
+comeca_em = 33
+largura = 320.0
+altura = 120.0
+rota = [[640.0, 140.0], [400.0, 140.0], [880.0, 140.0]]
+velocidade = 1.5
+
+# Trilhas elétricas acendem numa metade do chão: as tábuas são o lugar seguro.
+[[fases.ataques]]
+nome = "Trilhas da Esquerda"
+tipo = "zona"
+aviso = 45
+duracao = 90
+espera = 30
+area = [0.0, 600.0, 640.0, 40.0]
+
+[[fases.ataques]]
+nome = "Trilhas da Direita"
+tipo = "zona"
+aviso = 45
+duracao = 90
+espera = 30
+area = [640.0, 600.0, 640.0, 40.0]
+
+# Faíscas caindo da placa em leque (0°, ±15° e ±30° em volta de "para baixo").
+[[fases.ataques]]
+nome = "Faíscas"
+tipo = "leque"
+aviso = 30
+duracao = 1
+espera = 40
+velocidade = 6.0
+tamanho = 30.0
+direcao = [0.0, 1.0]
+espalhamento = [
+    [1.0, 0.0],
+    [0.965926, 0.258819],
+    [0.965926, -0.258819],
+    [0.866025, 0.5],
+    [0.866025, -0.5],
+]
+
+# A barra de "Atualização Obrigatória" enche em 4 segundos: destruída a tiros, nada
+# acontece; se encher, o Dom recupera 10% da vida máxima (sem voltar de fase).
+[[fases.ataques]]
+nome = "Atualização Obrigatória"
+tipo = "barra"
+aviso = 40
+duracao = 240
+espera = 40
+area = [1000.0, 400.0, 200.0, 36.0]
+vida_barra = 60
+cura = 10
