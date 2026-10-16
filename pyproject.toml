@@ -27,7 +27,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 # Dados revisáveis do jogo (D26) vão junto no pacote.
-"cupeco.conteudo" = ["*.toml"]
+"cupeco.conteudo" = ["*.toml", "chefes/*.toml"]
 
 [tool.ruff]
 line-length = 100
