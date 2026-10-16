@@ -233,3 +233,25 @@ Modelo:
 - **Testado à mão pelo João**: jogou a arena e aprovou ("está bom"); os valores iniciais de movimento, tiro e Triagem ficam como estão por ora.
 - Não conferido: o controle de videogame com um aparelho real (testado só com controle simulado).
 - Próximo: PR 9, `docs/log-fase-1` (✅ na Fase 1).
+
+### 2026-10-16 14:27 — Fase 1 concluída
+
+**Feito:**
+- PR #11 (arena de testes jogável) mergeado com o CI verde.
+- Fase 1 marcada com ✅ no roteiro do briefing; cada item do plano da seção 10.1 com ✅ e o número do PR; situação atualizada no briefing e no README (próxima: Fase 2).
+
+**Arquivos:** `briefing.md`, `README.md`, `LOG.md`.
+
+**Motivo / observações:**
+- Fecha a Fase 1 (Regra 2). Testes: 204 → 204 (só documentação).
+- Resumo da Fase 1, em 9 PRs (#3 a #11), todos com o CI verde em Linux e Windows antes do merge:
+  - prancha de estilo gerada por código e aprovada pelo João (D19);
+  - dados de jogo em TOML com validação estrita e os materiais da CONAMA com fonte conferida (D15, D26);
+  - física com colisão por varredura e plataformas atravessáveis;
+  - Dara: movimento, dash sem invencibilidade, mira em 8 direções, duas armas com EX, Triagem pela tabela 5.2, Medidor em pontos inteiros, Super, vida, dano e derrota (J1 a J5, D12, D14, D25);
+  - batalha determinística com replay em JSON (D8, D23, D24);
+  - arena de testes jogável com avisos educativos da Triagem, testada e aprovada pelo João (J7, I8).
+- Testes ao longo da fase: 10 → 204.
+- Critério do roteiro com uma ressalva: a arena funciona no teclado (testado pelo João) e no controle (testado com controle simulado); falta conferir com um controle de videogame real.
+- Pendências que seguem: prazo do projeto (P4); fonte do jogo com acentos (I12, Fase 3); conferência pixel a pixel dos assets entre sistemas (R10, Fase 3).
+- Próximo: Fase 2 — a primeira luta (Dom Obsolescêncio) com formas simples, padrões de ataque em dados, Modo Simples, tela de derrota com progresso e "Você sabia?", tela de vitória com nota. O plano da Fase 2 vem antes do código (Regra 1).

@@ -17,7 +17,7 @@ Projeto de extensão da UNIP. Público: 10 anos ou mais. "CupEco" é o codinome 
 
 ## Situação
 
-🚧 **Em desenvolvimento: Fase 1 (núcleo).** Já dá para jogar a **arena de testes**, com formas simples no lugar da arte: a Dara corre, pula, faz dash, atira com duas armas e faz a Triagem nos resíduos de um lançador, contra um boneco de treino. O estilo da arte, gerada por código, está na [prancha de estilo](docs/prancha-estilo.png) aprovada. O roteiro completo, as decisões e o escopo da V1 estão no [briefing.md](briefing.md); o histórico de cada mudança está no [LOG.md](LOG.md).
+🚧 **Em desenvolvimento.** Fase 1 (núcleo) concluída; próxima: Fase 2, a primeira luta contra um chefe. Já dá para jogar a **arena de testes**, com formas simples no lugar da arte: a Dara corre, pula, faz dash, atira com duas armas e faz a Triagem nos resíduos de um lançador, contra um boneco de treino. O estilo da arte, gerada por código, está na [prancha de estilo](docs/prancha-estilo.png) aprovada. O roteiro completo, as decisões e o escopo da V1 estão no [briefing.md](briefing.md); o histórico de cada mudança está no [LOG.md](LOG.md).
 
 O executável para Windows será publicado nas [releases](https://github.com/Joaofernandes-DEV/CupEco/releases) na entrega da V1.
 
