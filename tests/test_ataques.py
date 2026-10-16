@@ -10,17 +10,21 @@ from cupeco.dominio.ataques import (
     AVISO_MINIMO_NORMAL,
     DadosAtaque,
     Etapa,
+    Explosao,
     Inimigo,
     Roteiro,
     TipoAtaque,
+    explodir,
     validar_ataque,
 )
 from cupeco.dominio.batalha import Batalha, EventoBatalha, carregar_arena
 from cupeco.dominio.chefe import Chefe, DadosChefe, DadosFase, EventoChefe, validar_chefe
 from cupeco.dominio.comandos import NENHUM, Botao
 from cupeco.dominio.dados import DadosInvalidos
+from cupeco.dominio.fisica import Caixa
 from cupeco.dominio.jogador import EventoJogador
 from cupeco.dominio.materiais import Material
+from cupeco.dominio.projeteis import Dono, Projetil
 
 RAJADA = DadosAtaque(
     "raios",
@@ -69,6 +73,25 @@ INIMIGOS = DadosAtaque(
     vida_inimigo=4,
     origem=(1000.0, 300.0),
 )
+BATERIAS = replace(
+    CHUVA,
+    nome="baterias",
+    quantidade=1,
+    faixa=(300.0, 300.001),
+    materiais=("perigoso",),
+    explode_em=640.0,
+    explosao=(400.0, 90.0, 24),
+)
+BARRA = DadosAtaque(
+    "atualização",
+    TipoAtaque.BARRA,
+    aviso=20,
+    duracao=120,
+    espera=20,
+    area=(600.0, 540.0, 100.0, 60.0),
+    vida_barra=20,
+    cura=10,
+)
 
 
 def roteiro(*ataques, semente=1):
@@ -86,7 +109,7 @@ def passos(r, quantidade, centro=(1000.0, 400.0), alvo=(200.0, 575.0)):
 # --- validação (J6, D30) -------------------------------------------------------------
 
 
-@pytest.mark.parametrize("ataque", [RAJADA, LEQUE, MIRADO, CHUVA, ZONA, INIMIGOS])
+@pytest.mark.parametrize("ataque", [RAJADA, LEQUE, MIRADO, CHUVA, ZONA, INIMIGOS, BATERIAS, BARRA])
 def test_ataques_de_exemplo_sao_validos(ataque):
     assert validar_ataque(ataque, "x") is ataque
 
@@ -104,6 +127,14 @@ def test_ataques_de_exemplo_sao_validos(ataque):
         (replace(RAJADA, materiais=()), "materiais"),
         (replace(INIMIGOS, vida_inimigo=0), "vida_inimigo"),
         (replace(RAJADA, duracao=0), "duração"),
+        (replace(CHUVA, explosao=(100.0, 50.0, 10)), "use explode_em e explosao juntos"),
+        (replace(CHUVA, explode_em=640.0), "use explode_em e explosao juntos"),
+        (replace(RAJADA, explode_em=640.0, explosao=(100.0, 50.0, 10)), "só a chuva explode"),
+        (replace(CHUVA, explode_em=640.0, explosao=(100.0, 50.0, 0)), "quadros positivos"),
+        (replace(BARRA, area=None), "a barra precisa de uma área"),
+        (replace(BARRA, vida_barra=0), "vida_barra"),
+        (replace(BARRA, cura=0), "cura: vai de 1 a 100"),
+        (replace(BARRA, cura=101), "cura: vai de 1 a 100"),
     ],
 )
 def test_ataque_invalido(ataque, mensagem):
@@ -289,3 +320,127 @@ def test_inimigo_que_encosta_machuca_e_some():
     for _ in range(INIMIGOS.aviso + 60):
         eventos.extend(batalha.atualizar(NENHUM))
     assert EventoJogador.LEVOU_DANO in eventos and EventoBatalha.INIMIGO_DESTRUIDO in eventos
+
+
+# --- explosões (baterias estufadas) --------------------------------------------------
+
+
+def bateria(y):
+    return Projetil(
+        x=300.0,
+        y=y,
+        largura=34.0,
+        altura=34.0,
+        vx=0.0,
+        vy=5.0,
+        dano=1,
+        quadros_de_vida=1000,
+        dono=Dono.INIMIGO,
+        material=Material.PERIGOSO,
+        explode_em=640.0,
+        explosao=(140.0, 90.0, 24),
+    )
+
+
+def test_tiro_comum_e_bateria_no_ar_nao_explodem():
+    assert explodir(replace(bateria(640.0), explode_em=None, explosao=None)) is None
+    assert explodir(bateria(600.0)) is None  # base em 617: ainda no ar
+
+
+def test_bateria_no_chao_explode_em_volta_do_ponto_da_queda():
+    explosao = explodir(bateria(625.0))  # base em 642: chegou ao chão
+    assert explosao == Explosao(Caixa(230.0, 550.0, 140.0, 90.0), 24)
+
+
+def test_chuva_explosiva_leva_a_explosao_nos_tiros():
+    disparos = passos(roteiro(BATERIAS), BATERIAS.aviso + 1)
+    (tiro,) = disparos[-1].projeteis
+    assert tiro.material is Material.PERIGOSO
+    assert (tiro.explode_em, tiro.explosao) == (640.0, (400.0, 90.0, 24))
+
+
+def test_explosao_machuca_so_depois_de_chegar_ao_chao_e_some():
+    # A bateria cai em x = 300, longe da Dara (x de 160 a 216); a explosão (de 100 a 500)
+    # a alcança.
+    batalha = Batalha(1, ARENA, chefe_com(BATERIAS))
+    explodiu_em = None
+    for quadro in range(400):
+        eventos = batalha.atualizar(NENHUM)
+        if EventoBatalha.EXPLODIU in eventos:
+            explodiu_em = quadro
+            assert EventoJogador.LEVOU_DANO in eventos
+            break
+        assert EventoJogador.LEVOU_DANO not in eventos
+    assert explodiu_em is not None and len(batalha.explosoes) == 1
+    for _ in range(23):
+        batalha.atualizar(NENHUM)
+    assert batalha.explosoes == []
+
+
+def test_explosao_longe_da_dara_nao_machuca():
+    longe = replace(BATERIAS, faixa=(1000.0, 1000.001), explosao=(140.0, 90.0, 24))
+    batalha = Batalha(1, ARENA, chefe_com(longe))
+    eventos = []
+    for _ in range(300):
+        eventos.extend(batalha.atualizar(NENHUM))
+    assert EventoBatalha.EXPLODIU in eventos and EventoJogador.LEVOU_DANO not in eventos
+
+
+# --- barra (Atualização Obrigatória) -------------------------------------------------
+
+
+def test_barra_aparece_na_etapa_ativa_e_enche():
+    r = roteiro(BARRA)
+    for _ in range(BARRA.aviso):
+        passos(r, 1)
+        assert r.barra is None and r.barra_avisada == Caixa(*BARRA.area)
+    passos(r, 60)  # 60 dos 120 quadros da etapa ativa
+    assert r.barra is not None and r.barra.vida == 20 and r.barra_avisada is None
+    assert r.progresso_da_barra == pytest.approx(0.5)
+
+
+def test_barra_que_enche_cura_e_a_destruida_nao():
+    r = roteiro(BARRA)
+    curas = [d.cura for d in passos(r, BARRA.aviso + BARRA.duracao + 1)]
+    assert curas[-1] == 10 and sum(curas) == 10
+    assert r.barra is None
+
+    r = roteiro(BARRA)
+    passos(r, BARRA.aviso + 1)
+    r.barra.levar_dano(20)
+    assert r.barra is None  # destruída, some na hora
+    assert sum(d.cura for d in passos(r, BARRA.duracao)) == 0
+
+
+def test_cura_nunca_passa_do_comeco_da_fase():
+    chefe = Chefe(chefe_com(), random.Random(1))  # 300 de vida; a fase 2 começa em 150
+    chefe.levar_dano(100)
+    assert chefe.curar(10) == [EventoChefe.CUROU] and chefe.vida == 230
+    chefe.curar(50)
+    assert chefe.vida == 300
+    chefe.levar_dano(200)  # para em 150 e troca de fase
+    assert chefe.curar(10) == []  # na transição não cura
+    for _ in range(40):
+        chefe.atualizar()
+    chefe.levar_dano(20)
+    chefe.curar(50)
+    assert (chefe.fase, chefe.vida) == (1, 150)  # não volta para a fase 1
+
+
+def test_barra_destruida_a_tiros_enche_o_medidor_e_nao_cura():
+    batalha = Batalha(1, ARENA, chefe_com(BARRA))
+    batalha.chefe.levar_dano(50)
+    eventos = []
+    for _ in range(BARRA.aviso + BARRA.duracao + 5):
+        eventos.extend(batalha.atualizar(frozenset({Botao.TIRO})))
+    assert EventoBatalha.BARRA_DESTRUIDA in eventos and EventoChefe.CUROU not in eventos
+    assert batalha.jogador.medidor.pontos > 0
+
+
+def test_barra_ignorada_cura_o_chefe():
+    batalha = Batalha(1, ARENA, chefe_com(BARRA))
+    batalha.chefe.levar_dano(50)
+    eventos = []
+    for _ in range(BARRA.aviso + BARRA.duracao + 5):
+        eventos.extend(batalha.atualizar(NENHUM))
+    assert EventoChefe.CUROU in eventos and batalha.chefe.vida == 280

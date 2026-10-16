@@ -6,7 +6,9 @@ começa, para que todo jogador veja as 3 fases de cada chefe (no espírito da D1
 
 O chefe se move por uma rota de pontos (o centro da caixa vai de um ponto ao outro, em
 velocidade constante, e volta ao primeiro) e ataca com o roteiro da fase (`ataques.py`):
-os ataques param durante a transição e recomeçam com a lista da fase nova.
+os ataques param durante a transição e recomeçam com a lista da fase nova. Uma barra que
+enche sem ser destruída cura o chefe, mas nunca acima do começo da fase atual: a cura não
+faz o chefe voltar de fase.
 """
 
 from __future__ import annotations
@@ -19,6 +21,7 @@ from itertools import pairwise
 
 from cupeco.dominio.ataques import (
     AVISO_MINIMO_NORMAL,
+    Barra,
     DadosAtaque,
     Etapa,
     Inimigo,
@@ -39,6 +42,7 @@ class EventoChefe(Enum):
     DERROTADO = "chefe_derrotado"
     ATAQUE_AVISO = "ataque_aviso"  # começou o aviso de um ataque (som e desenho do alerta)
     ATAQUE_ATIVO = "ataque_ativo"
+    CUROU = "chefe_curou"  # uma barra encheu sem ser destruída
 
 
 @dataclass(frozen=True)
@@ -161,6 +165,10 @@ class Chefe:
         return self.roteiro.zona_avisada
 
     @property
+    def barra(self) -> Barra | None:
+        return self.roteiro.barra
+
+    @property
     def em_aviso(self) -> bool:
         return self.roteiro.atual is not None and self.roteiro.etapa is Etapa.AVISO
 
@@ -182,7 +190,17 @@ class Chefe:
                 eventos.append(EventoChefe.ATAQUE_AVISO)
             if Etapa.ATIVO.value in comecos:
                 eventos.append(EventoChefe.ATAQUE_ATIVO)
+            if disparo.cura:
+                eventos.extend(self.curar(disparo.cura))
         return eventos
+
+    def curar(self, porcentagem: int) -> list[EventoChefe]:
+        """Recupera uma porcentagem da vida máxima, sem passar do começo da fase atual."""
+        if not self.vulneravel:
+            return []
+        teto = self.limite_da_fase(self.fase)
+        self.vida = min(teto, self.vida + self.dados.vida * porcentagem // 100)
+        return [EventoChefe.CUROU]
 
     def _andar(self) -> None:
         fase = self.dados_da_fase

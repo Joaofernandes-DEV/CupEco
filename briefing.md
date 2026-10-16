@@ -2,7 +2,7 @@
 
 Diagnóstico, decisões e roteiro da primeira versão. Este documento vem antes do código (Regra 1) e é atualizado quando uma decisão muda; cada mudança é registrada no [LOG.md](LOG.md).
 
-> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1). Fase 1 (núcleo e prancha de estilo) concluída em 2026-10-16 (PRs #3 a #11), com o plano da seção 10.1 e as decisões D23 a D27; pendente só conferir um controle de videogame real na arena. Fase 2 (primeira luta, Dom Obsolescêncio com formas simples) em andamento, com o plano aprovado na seção 10.2 e as decisões D28 a D35.
+> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1). Fase 1 (núcleo e prancha de estilo) concluída em 2026-10-16 (PRs #3 a #11), com o plano da seção 10.1 e as decisões D23 a D27; pendente só conferir um controle de videogame real na arena. Fase 2 (primeira luta, Dom Obsolescêncio com formas simples) em andamento, com o plano aprovado na seção 10.2 e as decisões D28 a D36.
 
 ---
 
@@ -172,7 +172,7 @@ Cada chefe tem **3 fases por limiar de vida**. Na troca de fase há uma animaç�
 
 | Código | Chefe | Fase 1 | Fase 2 | Fase 3 |
 |--------|-------|--------|--------|--------|
-| J8 | **Dom Obsolescêncio** (lixo eletrônico; tema: obsolescência programada) | **Torre de Tubos:** pilha de TVs de tubo com raios de pixel, chicotes de cabo e uma coroa de carregadores que cai em projéteis amarelos | **Enxame Descontinuado:** celulares voadores; **baterias estufadas** (laranja, não separáveis) explodem em área | **Placa-Mãe:** chão com trilhas elétricas; a barra de "Atualização Obrigatória" cura o chefe se encher e precisa ser destruída a tiros |
+| J8 | **Dom Obsolescêncio** (lixo eletrônico; tema: obsolescência programada) | **Torre de Tubos:** pilha de TVs de tubo com raios de pixel, chicotes de cabo e uma coroa de antenas de metal que cai em pedaços amarelos (metal, separáveis; D36) | **Enxame Descontinuado:** celulares voadores; **baterias estufadas** (laranja, não separáveis) explodem em área | **Placa-Mãe:** chão com trilhas elétricas; a barra de "Atualização Obrigatória" cura o chefe se encher e precisa ser destruída a tiros |
 | J9 | **Barão Fuligem** (poluição industrial do ar e da água) | **Linha de Produção:** esteiras no chão e chaminés soltando nuvens de fuligem em ritmo | **Descarga no Rio:** luta sobre balsas num rio com espuma química (referência: a espuma do rio Tietê em Pirapora do Bom Jesus); plataformas afundam | **Fornalha:** smog limita a visão a um círculo em volta da Dara; o ponto fraco só aparece quando a fornalha "respira" |
 | J10 | **Leviatã de Plástico** (plástico nos oceanos) | **Ilha de Sacolas:** sacolas-água-viva em ondas e chuva de tampinhas | **Serpente de Redes-Fantasma:** fase de **voo**; o Pet vira um planador de garrafa PET, e a Dara voa e atira em 8 direções | **Microplástico:** o chefe se dissolve num enxame minúsculo e espalhado, difícil de acertar |
 
@@ -264,6 +264,7 @@ Valem para todo texto, fato, imagem, som e mecânica, e são conferidos na revis
 | D33 | A vida do chefe aparece na tela? | **Não**: o avanço é percebido pelas trocas de fase, e a barra de progresso aparece na tela de derrota (I6) | Decisão do João em 2026-10-16: tensão do gênero e valor do progresso ao perder |
 | D34 | Os celulares da fase 2 do Dom podem ser destruídos? | **Sim**: "inimigos menores" que voam até a Dara, machucam no contato e caem com tiros, como peça de ataque reaproveitável (D29) | Decisão do João em 2026-10-16: fase mais viva e sistema útil para os outros chefes |
 | D35 | Quem traz os fatos do "Você sabia?"? | **O João ou o grupo**, com as fontes; o Claude coloca no jogo, com teste que exige fonte. Sem fato fornecido, a tela mostra só mensagens neutras, sem nenhuma afirmação sobre o mundo real. A revisão externa (D22) continua na Fase 7 | Decisão do João em 2026-10-16 (C1, R6) |
+| D36 | Do que é feita a coroa do Dom (fase 1)? | De **antenas de metal**, que caem em pedaços amarelos separáveis; não de carregadores | Decisão do João em 2026-10-16. Amarelo no jogo é metal, separável; carregador é lixo eletrônico e vai para a coleta de eletrônicos, então a coroa de carregadores ensinaria a separação errada (C1, R6) |
 
 **Perguntas respondidas na revisão de 2026-10-16:**
 

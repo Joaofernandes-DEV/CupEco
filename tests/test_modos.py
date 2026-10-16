@@ -107,13 +107,15 @@ def ataques_de(dados):
 
 
 def quadros_sem_perigo(ataque):
-    """Quadros desde o começo do aviso até o primeiro tiro, inimigo ou zona que machuca."""
+    """Quadros desde o começo do aviso até o ataque agir: o primeiro tiro ou inimigo, a zona
+    que machuca ou a barra que começa a encher."""
     r = Roteiro((ataque,), random.Random(1))
     for quadro in range(ataque.aviso + ataque.duracao + 1):
         disparo, _ = r.atualizar((1000.0, 400.0), (200.0, 575.0))
-        if disparo.projeteis or disparo.inimigos or r.zona_ativa is not None:
+        agiu = disparo.projeteis or disparo.inimigos or r.zona_ativa or r.barra
+        if agiu:
             return quadro
-    raise AssertionError(f"{ataque.nome} não causou perigo")
+    raise AssertionError(f"{ataque.nome} não agiu")
 
 
 def total_disparado(ataque):
