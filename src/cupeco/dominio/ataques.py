@@ -2,8 +2,10 @@
 
 Peças: **rajada** (tiros numa direção), **leque** (vários tiros abrindo a partir da
 direção), **mirado** (tiro na direção da Dara no momento do disparo), **chuva** (tiros caindo
-do alto em posições sorteadas), **zona** (área do chão que machuca enquanto dura) e
-**inimigos** menores (voam até a Dara, machucam no contato e caem com tiros).
+do alto em posições sorteadas; podem **explodir** em área ao chegar ao chão), **zona** (área
+do chão que machuca enquanto dura), **inimigos** menores (voam até a Dara, machucam no
+contato e caem com tiros) e **barra** (um alvo que enche aos poucos: se não for destruído a
+tiros antes de encher, o chefe se cura, sem nunca voltar de fase).
 
 Todo ataque passa por três etapas: **aviso** (o jogador vê o que vem: nada machuca ainda),
 **ativo** (os tiros saem, a zona machuca) e **espera** (pausa até o próximo). O aviso tem
@@ -38,6 +40,7 @@ class TipoAtaque(Enum):
     CHUVA = "chuva"
     ZONA = "zona"
     INIMIGOS = "inimigos"
+    BARRA = "barra"
 
 
 TIPOS_COM_TIRO = {TipoAtaque.RAJADA, TipoAtaque.LEQUE, TipoAtaque.MIRADO, TipoAtaque.CHUVA}
@@ -61,8 +64,12 @@ class DadosAtaque:
     espalhamento: tuple[Ponto, ...] = ()  # leque: rotações [cosseno, seno] da direção
     alturas: tuple[float, ...] = ()  # rajada: alturas sorteadas no lugar da origem
     faixa: Ponto = (0.0, 1280.0)  # chuva: de onde a onde caem os tiros
-    area: tuple[float, float, float, float] | None = None  # zona: [x, y, largura, altura]
+    area: tuple[float, float, float, float] | None = None  # zona e barra: [x, y, larg., alt.]
     vida_inimigo: int = 1
+    explode_em: float | None = None  # chuva: altura (y) do chão onde o tiro explode
+    explosao: tuple[float, float, int] | None = None  # chuva: [largura, altura, quadros]
+    vida_barra: int = 1
+    cura: int = 0  # barra: porcentagem da vida máxima que o chefe recupera se ela encher
 
 
 def _unitario(vetor: Ponto) -> bool:
@@ -96,10 +103,25 @@ def validar_ataque(
         raise DadosInvalidos(f"{onde}.espalhamento: rotações [cosseno, seno] de tamanho 1")
     if tipo is TipoAtaque.CHUVA and not ataque.faixa[0] < ataque.faixa[1]:
         raise DadosInvalidos(f"{onde}.faixa: o começo precisa vir antes do fim")
-    if tipo is TipoAtaque.ZONA and (ataque.area is None or min(ataque.area[2:]) <= 0):
-        raise DadosInvalidos(f"{onde}.area: a zona precisa de uma área [x, y, largura, altura]")
+    com_area = (TipoAtaque.ZONA, TipoAtaque.BARRA)
+    if tipo in com_area and (ataque.area is None or min(ataque.area[2:]) <= 0):
+        raise DadosInvalidos(
+            f"{onde}.area: a {tipo.value} precisa de uma área [x, y, largura, altura]"
+        )
     if tipo is TipoAtaque.INIMIGOS and ataque.vida_inimigo < 1:
         raise DadosInvalidos(f"{onde}.vida_inimigo: precisa ser positiva")
+    if (ataque.explode_em is None) != (ataque.explosao is None):
+        raise DadosInvalidos(f"{onde}.explosao: use explode_em e explosao juntos")
+    if ataque.explosao is not None:
+        if tipo is not TipoAtaque.CHUVA:
+            raise DadosInvalidos(f"{onde}.explosao: só a chuva explode")
+        if min(ataque.explosao) <= 0:
+            raise DadosInvalidos(f"{onde}.explosao: largura, altura e quadros positivos")
+    if tipo is TipoAtaque.BARRA:
+        if ataque.vida_barra < 1:
+            raise DadosInvalidos(f"{onde}.vida_barra: precisa ser positiva")
+        if not 1 <= ataque.cura <= 100:
+            raise DadosInvalidos(f"{onde}.cura: vai de 1 a 100 (% da vida máxima)")
     return ataque
 
 
@@ -140,6 +162,45 @@ class Inimigo:
             self.y += dy / distancia * self.velocidade
 
 
+# --- explosões e barra ---------------------------------------------------------------
+
+
+@dataclass
+class Explosao:
+    """Área que machuca por alguns quadros, onde um tiro explosivo chegou ao chão."""
+
+    caixa: Caixa
+    restante: int
+
+
+def explodir(projetil: Projetil) -> Explosao | None:
+    """A explosão do projétil, se ele for explosivo e já tiver chegado ao chão."""
+    if projetil.explode_em is None or projetil.explosao is None:
+        return None
+    if projetil.caixa.base < projetil.explode_em:
+        return None
+    largura, altura, quadros = projetil.explosao
+    caixa = Caixa(projetil.x - largura / 2, projetil.explode_em - altura, largura, altura)
+    return Explosao(caixa, quadros)
+
+
+@dataclass
+class Barra:
+    """Barra que cura o chefe se encher; cai com tiros (que enchem o Medidor)."""
+
+    nome: str
+    caixa: Caixa
+    vida: int
+
+    @property
+    def vulneravel(self) -> bool:
+        return self.vida > 0
+
+    def levar_dano(self, dano: int) -> list:
+        self.vida = max(0, self.vida - dano)
+        return []
+
+
 # --- roteiro -------------------------------------------------------------------------
 
 
@@ -155,6 +216,7 @@ class Disparo:
 
     projeteis: list[Projetil]
     inimigos: list[Inimigo]
+    cura: int = 0  # porcentagem da vida máxima: uma barra encheu sem ser destruída
 
 
 class Roteiro:
@@ -169,6 +231,8 @@ class Roteiro:
         self._quadro_ativo = 0
         self._anterior: DadosAtaque | None = None
         self._contador_inimigos = 0
+        self._contador_barras = 0
+        self._barra: Barra | None = None
         self.pontos_da_chuva: tuple[float, ...] = ()  # sorteados no aviso (o jogador vê onde)
 
     @property
@@ -185,6 +249,25 @@ class Roteiro:
             return Caixa(*self.atual.area)
         return None
 
+    @property
+    def barra(self) -> Barra | None:
+        """A barra em pé agora (destruída, deixa de existir)."""
+        return self._barra if self._barra is not None and self._barra.vulneravel else None
+
+    @property
+    def barra_avisada(self) -> Caixa | None:
+        """Onde a barra vai aparecer, durante o aviso."""
+        if self.atual and self.atual.tipo is TipoAtaque.BARRA and self.etapa is Etapa.AVISO:
+            return Caixa(*self.atual.area)
+        return None
+
+    @property
+    def progresso_da_barra(self) -> float:
+        """Quanto a barra já encheu, de 0 a 1."""
+        if self.barra is None or self.atual is None:
+            return 0.0
+        return self._quadro_ativo / self.atual.duracao
+
     def _escolher(self) -> DadosAtaque:
         opcoes = [a for a in self.ataques if a is not self._anterior] or list(self.ataques)
         return self._sorteio.choice(opcoes)
@@ -198,7 +281,13 @@ class Roteiro:
         if self.restante > 0:
             self.restante -= 1
         if self.restante == 0:
+            terminou = self.atual if self.etapa is Etapa.ATIVO else None
             comecos.append(self._avancar())
+            if terminou is not None and terminou.tipo is TipoAtaque.BARRA:
+                # A barra encheu: se ninguém a destruiu, o chefe se cura.
+                if self.barra is not None:
+                    disparo.cura = terminou.cura
+                self._barra = None
         if self.etapa is Etapa.ATIVO and self.atual is not None:
             self._agir(self.atual, centro_chefe, alvo, disparo)
             self._quadro_ativo += 1
@@ -226,6 +315,7 @@ class Roteiro:
         """Para o ataque atual (troca de fase, derrota): volta à espera."""
         self.atual, self.etapa, self.restante = None, Etapa.ESPERA, 0
         self.pontos_da_chuva = ()
+        self._barra = None
 
     # --- peças ---
 
@@ -250,6 +340,8 @@ class Roteiro:
             quadros_de_vida=10_000,  # some ao sair da tela
             dono=Dono.INIMIGO,
             material=self._material(ataque),
+            explode_em=ataque.explode_em,
+            explosao=ataque.explosao,
         )
 
     def _agir(self, ataque: DadosAtaque, centro: Ponto, alvo: Ponto, disparo: Disparo) -> None:
@@ -275,6 +367,10 @@ class Roteiro:
         elif ataque.tipo is TipoAtaque.CHUVA:
             for x in self.pontos_da_chuva:
                 disparo.projeteis.append(self._tiro(ataque, x, -ataque.tamanho, 0.0, 1.0))
+        elif ataque.tipo is TipoAtaque.BARRA:
+            self._contador_barras += 1
+            caixa = Caixa(*ataque.area)
+            self._barra = Barra(f"barra-{self._contador_barras}", caixa, ataque.vida_barra)
         elif ataque.tipo is TipoAtaque.INIMIGOS:
             for _ in range(ataque.quantidade):
                 self._contador_inimigos += 1
