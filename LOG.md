@@ -359,3 +359,25 @@ Modelo:
 - Valores iniciais (vida, velocidades, tempos), ajustados quando o João jogar a luta no PR 7.
 - Sem mudança visível no jogo: o Dom aparece na tela no PR 7. Nada para abrir e testar à mão neste PR.
 - Próximo: PR 5, `feat/nota`.
+
+### 2026-10-16 17:58 — Nota da luta
+
+**Feito:**
+- PR #17 (Dom Obsolescêncio em dados) mergeado com o CI verde. O João confirmou os dois ataques extras do Dom (Manuais de Papel e Faíscas).
+- `conteudo/nota.toml` + `dominio/nota.py` (J14, D32): a nota é uma função pura do desempenho e só existe na vitória. São 100 pontos no total:
+  - **tempo:** 20, 15 ou 10 pontos pelas faixas de cada chefe, e 5 acima da última (para o Dom: 2, 3 e 4 minutos);
+  - **vida restante:** 10 por ponto de vida (até 30);
+  - **triagens certas:** 10 cada, até 3 (até 30). As de outra cor não valem pontos, só aparecem nas estatísticas;
+  - **Super:** 10 por Prensa, até 2 (até 20).
+- Letras: A+ (95 ou mais), A (85), B (70), C (50) e D. O modo fica ao lado da nota, sem teto no Simples (D13).
+- `desempenho_da(batalha, chefe)` monta o desempenho de uma luta vencida (tempo em quadros, vida, triagens certas, Supers e modo); sem vitória, dá erro.
+- Validação dos dados: pontos positivos, pontos de tempo que não aumentam com a demora, um limite crescente por faixa para cada chefe, letras sem repetição com mínimos decrescentes e a última em 0, e o A+ alcançável com a pontuação máxima.
+
+**Arquivos:** `src/cupeco/conteudo/nota.toml`, `src/cupeco/dominio/nota.py`, `tests/test_nota.py` (novos), `LOG.md`.
+
+**Motivo / observações:**
+- PR 5 do plano da Fase 2 (J14, D32). Testes: 325 → 362.
+- Decisões do João neste PR: escala de 5 letras (A+, A, B, C e D), sem teto no Simples e triagens de outra cor valendo 0 na nota. Pesos e faixas iniciais aprovados, ajustados no balanceamento.
+- Um teste exige que todo chefe de `conteudo/chefes/` tenha as suas faixas de tempo na nota.
+- Sem mudança visível no jogo: a nota aparece na tela de vitória (PR 7). Nada para abrir e testar à mão neste PR.
+- Próximo: PR 6, `feat/voce-sabia`.

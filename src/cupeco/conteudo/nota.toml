@@ -1,0 +1,44 @@
+# Nota da luta (J14, D32, D26): só na vitória, de A+ a D, com o modo ao lado.
+#
+# 100 pontos no total: tempo (20), vida restante (30), triagens certas (30) e Super (20).
+# Triagens de outra cor não valem pontos na nota (só aparecem nas estatísticas). O Simples
+# não tem teto: o modo fica registrado ao lado da nota (D13).
+# Valores iniciais, ajustados com o João no balanceamento.
+
+# Tempo: pontos de cada faixa, da mais rápida para a mais lenta; acima da última faixa,
+# `pontos_tempo_acima`. Os limites de cada faixa ficam em `[[tempos]]`, por chefe.
+pontos_tempo = [20, 15, 10]
+pontos_tempo_acima = 5
+
+pontos_por_vida = 10
+pontos_por_triagem = 10
+maximo_triagens = 3
+pontos_por_super = 10
+maximo_supers = 2
+
+# Limites das faixas de tempo de cada chefe, em quadros (60 por segundo). O nome é o do
+# arquivo em conteudo/chefes/, sem o .toml.
+[[tempos]]
+chefe = "dom_obsolescencio"
+limites = [7200, 10800, 14400]  # 2, 3 e 4 minutos
+
+# Letras, da maior para a menor: a primeira cujo mínimo a luta alcança.
+[[letras]]
+letra = "A+"
+minimo = 95
+
+[[letras]]
+letra = "A"
+minimo = 85
+
+[[letras]]
+letra = "B"
+minimo = 70
+
+[[letras]]
+letra = "C"
+minimo = 50
+
+[[letras]]
+letra = "D"
+minimo = 0
