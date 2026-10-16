@@ -1,0 +1,48 @@
+# Armas da V1 (J2, D26). Cada arma tem a cor de um material reciclável: a cor da arma
+# equipada é a "lixeira ativa" da Triagem (D12).
+#
+# Unidades: pixels lógicos e passos de 1/60 s. Dano em pontos inteiros (D25).
+# `espalhamento` lista os tiros de cada disparo como rotações [cosseno, seno] da direção da
+# mira, escritas à mão (sem trigonometria no jogo, D23): [1, 0] é reto; [0.9659, 0.2588] é
+# 15° para um lado.
+# Valores iniciais, ajustados com o João na arena de testes.
+
+[plastico]
+nome = "Rajada de Plástico"
+material = "plastico"
+quadros_entre_tiros = 8
+velocidade = 22.0
+dano = 4
+quadros_de_vida = 60
+largura = 26.0
+altura = 14.0
+espalhamento = [[1.0, 0.0]]
+
+[plastico.ex]
+nome = "Garrafa Perfurante"
+velocidade = 18.0
+dano = 30
+quadros_de_vida = 90
+largura = 52.0
+altura = 30.0
+perfura = true
+
+[papel]
+nome = "Leque de Papel"
+material = "papel"
+quadros_entre_tiros = 14
+velocidade = 14.0
+dano = 3
+quadros_de_vida = 18
+largura = 18.0
+altura = 18.0
+espalhamento = [[1.0, 0.0], [0.965926, 0.258819], [0.965926, -0.258819]]
+
+[papel.ex]
+nome = "Bola de Papelão"
+velocidade = 12.0
+dano = 34
+quadros_de_vida = 40
+largura = 46.0
+altura = 46.0
+perfura = false
