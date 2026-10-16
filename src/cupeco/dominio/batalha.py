@@ -5,8 +5,9 @@ usa `random.Random(semente)`, então a mesma semente com os mesmos comandos dá 
 mesma luta: é o que permite gravar um **replay** (semente + lista de comandos) e
 reproduzi-lo quadro a quadro.
 
-Na Fase 1 a luta é a da arena de testes: um boneco de treino e um lançador de resíduos.
-Os chefes entram na Fase 2.
+A arena de testes tem um boneco de treino e um lançador de resíduos; uma luta de verdade
+tem um chefe (D28). Os tiros da Dara acertam qualquer alvo (boneco ou chefe); o chefe
+também machuca por contato.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from functools import cache
 
+from cupeco.dominio.chefe import Chefe, DadosChefe, EventoChefe, carregar_chefe
 from cupeco.dominio.comandos import Botao, Comandos
 from cupeco.dominio.dados import DadosInvalidos, converter, ler_toml
 from cupeco.dominio.fisica import Caixa, Plataforma
@@ -57,8 +59,9 @@ class Arena:
     inicio: tuple[float, float]
     margem: float
     plataformas: tuple[DadosPlataforma, ...]
-    alvo: DadosAlvo
-    lancador: DadosLancador
+    # Só a arena de testes tem boneco e lançador.
+    alvo: DadosAlvo | None = None
+    lancador: DadosLancador | None = None
 
     @property
     def plataformas_fisicas(self) -> tuple[Plataforma, ...]:
@@ -74,10 +77,11 @@ def validar_arena(arena: Arena, onde: str) -> Arena:
     for indice, plataforma in enumerate(arena.plataformas):
         if plataforma.caixa[2] <= 0 or plataforma.caixa[3] <= 0:
             raise DadosInvalidos(f"{onde}.plataformas[{indice}]: largura e altura positivas")
-    if not arena.lancador.alturas:
-        raise DadosInvalidos(f"{onde}.lancador.alturas: precisa de pelo menos uma altura")
-    if arena.lancador.quadros_entre_lancamentos <= 0:
-        raise DadosInvalidos(f"{onde}.lancador.quadros_entre_lancamentos: precisa ser positivo")
+    if arena.lancador is not None:
+        if not arena.lancador.alturas:
+            raise DadosInvalidos(f"{onde}.lancador.alturas: precisa de pelo menos uma altura")
+        if arena.lancador.quadros_entre_lancamentos <= 0:
+            raise DadosInvalidos(f"{onde}.lancador.quadros_entre_lancamentos: precisa ser positivo")
     return arena
 
 
@@ -99,6 +103,14 @@ class AlvoDeTreino:
     caixa: Caixa
     nome: str = "boneco"
     dano_recebido: int = 0
+
+    @property
+    def vulneravel(self) -> bool:
+        return True
+
+    def levar_dano(self, dano: int) -> list[EventoChefe]:
+        self.dano_recebido += dano
+        return []
 
 
 # Materiais que o lançador sorteia; None é um ataque comum, sem material (só machuca).
@@ -142,25 +154,48 @@ class EventoBatalha(Enum):
     RESIDUO_LANCADO = "residuo_lancado"
 
 
-Evento = EventoJogador | EventoBatalha
+class Resultado(Enum):
+    VITORIA = "vitoria"
+    DERROTA = "derrota"
+
+
+Evento = EventoJogador | EventoBatalha | EventoChefe
 
 
 @dataclass
 class Batalha:
-    """Uma luta na arena de testes. Use `atualizar` uma vez por passo de 1/60 s."""
+    """Uma luta. Use `atualizar` uma vez por passo de 1/60 s."""
 
     semente: int
     arena: Arena = field(default_factory=carregar_arena)
+    dados_chefe: DadosChefe | None = None
 
     def __post_init__(self) -> None:
         self.sorteio = random.Random(self.semente)
         self.plataformas = self.arena.plataformas_fisicas
         self.jogador = Jogador(*self.arena.inicio)
-        self.alvo = AlvoDeTreino(Caixa(*self.arena.alvo.caixa))
-        self.lancador = Lancador(self.arena.lancador, self.sorteio)
+        dados_alvo, dados_lancador = self.arena.alvo, self.arena.lancador
+        self.alvo = AlvoDeTreino(Caixa(*dados_alvo.caixa)) if dados_alvo else None
+        self.lancador = Lancador(dados_lancador, self.sorteio) if dados_lancador else None
+        self.chefe = Chefe(self.dados_chefe) if self.dados_chefe else None
+        self.alvos: list[AlvoDeTreino | Chefe] = [a for a in (self.alvo, self.chefe) if a]
         self.projeteis: list[Projetil] = []
         self.quadro = 0
         self.gravacao: list[Comandos] = []
+
+    @property
+    def resultado(self) -> Resultado | None:
+        if self.chefe is not None and self.chefe.derrotado:
+            return Resultado.VITORIA
+        if self.jogador.derrotada:
+            return Resultado.DERROTA
+        return None
+
+    def _ferir(self, alvo: AlvoDeTreino | Chefe, dano: int) -> list[Evento]:
+        """Aplica dano num alvo vulnerável e devolve os eventos (vazio se não acertou)."""
+        if not alvo.vulneravel:
+            return []
+        return [EventoBatalha.ACERTOU_ALVO, *alvo.levar_dano(dano)]
 
     def atualizar(self, comandos: Comandos) -> list[Evento]:
         comandos = frozenset(comandos)
@@ -170,13 +205,23 @@ class Batalha:
         self.projeteis.extend(jogador.novos_projeteis)
 
         if EventoJogador.SUPER in eventos:
-            self.alvo.dano_recebido += jogador.regras.dano_super
-            eventos.append(EventoBatalha.SUPER_ACERTOU)
+            for alvo in self.alvos:
+                acerto = self._ferir(alvo, jogador.regras.dano_super)
+                if acerto:
+                    eventos.append(EventoBatalha.SUPER_ACERTOU)
+                    eventos.extend(acerto[1:])
 
-        lancado = self.lancador.atualizar()
-        if lancado is not None:
-            self.projeteis.append(lancado)
-            eventos.append(EventoBatalha.RESIDUO_LANCADO)
+        if self.chefe is not None:
+            eventos.extend(self.chefe.atualizar())
+            contato = self.chefe.dados.dano_por_contato and not self.chefe.derrotado
+            if contato and self.chefe.caixa.sobrepoe(jogador.corpo.caixa):
+                eventos.extend(jogador.tocar_perigo())
+
+        if self.lancador is not None:
+            lancado = self.lancador.atualizar()
+            if lancado is not None:
+                self.projeteis.append(lancado)
+                eventos.append(EventoBatalha.RESIDUO_LANCADO)
 
         for projetil in self.projeteis:
             projetil.atualizar()
@@ -190,17 +235,23 @@ class Batalha:
         eventos: list[Evento] = []
         jogador = self.jogador
         restantes = []
-        alvo = self.alvo
         for projetil in self.projeteis:
             remover = False
             if projetil.dono is Dono.JOGADOR:
-                novo_acerto = alvo.nome not in projetil.alvos_atingidos
-                if novo_acerto and projetil.caixa.sobrepoe(alvo.caixa):
-                    alvo.dano_recebido += projetil.dano
-                    jogador.acertou(projetil)
-                    eventos.append(EventoBatalha.ACERTOU_ALVO)
+                for alvo in self.alvos:
+                    if alvo.nome in projetil.alvos_atingidos:
+                        continue
+                    if not projetil.caixa.sobrepoe(alvo.caixa):
+                        continue
+                    # Alvo invulnerável (chefe em transição) absorve o tiro sem levar dano.
+                    acerto = self._ferir(alvo, projetil.dano)
+                    if acerto:
+                        jogador.acertou(projetil)
+                        eventos.extend(acerto)
                     projetil.alvos_atingidos.add(alvo.nome)
-                    remover = not projetil.perfura
+                    if not projetil.perfura:
+                        remover = True
+                        break
             elif projetil.caixa.sobrepoe(jogador.corpo.caixa):
                 toque = jogador.tocar(projetil)
                 eventos.extend(toque.eventos)
@@ -222,7 +273,8 @@ class Batalha:
             self.jogador.estado,
             self.jogador.vida,
             self.jogador.medidor.pontos,
-            self.alvo.dano_recebido,
+            self.alvo.dano_recebido if self.alvo else None,
+            (self.chefe.vida, self.chefe.fase, self.chefe.x, self.chefe.y) if self.chefe else None,
             tuple((p.x, p.y, p.dono, p.material) for p in self.projeteis),
         )
 
@@ -239,16 +291,20 @@ class Replay:
     semente: int
     comandos: tuple[Comandos, ...]
     arena: str = "testes"
+    chefe: str | None = None  # nome do arquivo em conteudo/chefes/, sem o .toml
 
     @classmethod
-    def da_batalha(cls, batalha: Batalha, arena: str = "testes") -> Replay:
-        return cls(batalha.semente, tuple(batalha.gravacao), arena)
+    def da_batalha(
+        cls, batalha: Batalha, arena: str = "testes", chefe: str | None = None
+    ) -> Replay:
+        return cls(batalha.semente, tuple(batalha.gravacao), arena, chefe)
 
     def para_json(self) -> str:
         return json.dumps(
             {
                 "versao": VERSAO_REPLAY,
                 "arena": self.arena,
+                "chefe": self.chefe,
                 "semente": self.semente,
                 "comandos": [sorted(b.value for b in passo) for passo in self.comandos],
             },
@@ -264,10 +320,12 @@ class Replay:
             comandos = tuple(frozenset(Botao(b) for b in passo) for passo in dados["comandos"])
         except ValueError as erro:
             raise DadosInvalidos(f"replay: botão desconhecido ({erro})") from erro
-        return cls(int(dados["semente"]), comandos, str(dados["arena"]))
+        chefe = dados.get("chefe")
+        return cls(int(dados["semente"]), comandos, str(dados["arena"]), chefe)
 
     def reproduzir(self) -> tuple[Batalha, list[list[Evento]]]:
         """Roda a luta inteira de novo; devolve a batalha final e os eventos de cada passo."""
-        batalha = Batalha(self.semente, carregar_arena(self.arena))
+        dados_chefe = carregar_chefe(self.chefe) if self.chefe else None
+        batalha = Batalha(self.semente, carregar_arena(self.arena), dados_chefe)
         eventos = [batalha.atualizar(passo) for passo in self.comandos]
         return batalha, eventos
