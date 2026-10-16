@@ -59,6 +59,10 @@ class Projetil:
     material: Material | None = None
     perfura: bool = False
     ex: bool = False
+    # Tiro explosivo (as baterias estufadas do Dom): explode ao chegar à altura
+    # `explode_em`, numa área [largura, altura] que dura alguns quadros (`ataques.explodir`).
+    explode_em: float | None = None
+    explosao: tuple[float, float, int] | None = None
     # Nomes dos alvos já atingidos: um tiro perfurante acerta cada alvo uma vez só.
     alvos_atingidos: set[str] = field(default_factory=set)
 
