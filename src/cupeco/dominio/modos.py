@@ -7,7 +7,7 @@ Cada modo é um conjunto de porcentagens de `conteudo/modos.toml` (100 = sem mud
 - **projeteis** de cada ataque, por ataque: se o ataque dispara várias vezes, o intervalo
   entre os disparos aumenta (menos disparos na mesma duração); se dispara uma vez só, a
   quantidade cai. Nunca menos que 1. O leque mantém o formato (as rotações) e só perde
-  disparos quando repete;
+  disparos quando repete. Zona e barra não têm projéteis;
 - **velocidade** dos projéteis, dos inimigos menores e do movimento do chefe;
 - **aviso** antes de cada ataque, arredondado para cima.
 
@@ -99,7 +99,7 @@ def disparos(ataque: DadosAtaque) -> int:
 
 
 def _menos_projeteis(ataque: DadosAtaque, porcentagem: int) -> DadosAtaque:
-    if porcentagem == 100 or ataque.tipo is TipoAtaque.ZONA:
+    if porcentagem == 100 or ataque.tipo in (TipoAtaque.ZONA, TipoAtaque.BARRA):
         return ataque
     vezes = disparos(ataque)
     if vezes > 1:
