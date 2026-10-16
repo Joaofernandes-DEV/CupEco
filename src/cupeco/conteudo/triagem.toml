@@ -1,0 +1,16 @@
+# Regras da Triagem e do Medidor de Reciclagem (J3, J4, D12, D25, D26).
+#
+# A "lixeira ativa" é a cor da arma equipada. Separar um resíduo reciclável da mesma cor
+# rende um fardo inteiro; de outra cor reciclável, meio fardo. Rejeito (cinza) e perigoso
+# (laranja) não podem ser separados: tentar causa dano.
+# 100 pontos = 1 fardo; o Medidor tem 5 fardos (src/cupeco/dominio/medidor.py).
+
+pontos_triagem_certa = 100
+pontos_triagem_outra_cor = 50
+
+# Pontos ganhos por ponto de dano causado com tiros normais (o tiro EX não enche o Medidor).
+pontos_por_dano = 2
+
+# Super "Prensa": dano no chefe e quanto tempo a Dara fica parada e invencível soltando-a.
+dano_super = 120
+quadros_super = 60

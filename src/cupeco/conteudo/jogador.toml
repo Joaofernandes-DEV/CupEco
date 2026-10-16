@@ -31,3 +31,16 @@ quadros_descer = 10
 
 # Distância do centro da caixa até a boca do canhão, na direção da mira (de onde sai o tiro).
 distancia_boca = 52.0
+
+# Vida e dano (J5): 3 pontos de vida, sem cura. Depois de um dano, a Dara fica atordoada
+# (sem controle) por um instante, é empurrada para trás e fica invencível por um tempo.
+vida_maxima = 3
+quadros_atordoada = 18
+quadros_invencivel = 90
+velocidade_empurrao = 8.0
+
+# Triagem (J3): apertar pulo de novo no ar abre uma janela curta para "separar" um resíduo.
+# Uma tentativa por pulo; separar com sucesso quica a Dara para cima e devolve a tentativa
+# e o dash aéreo, para encadear triagens.
+quadros_janela_triagem = 10
+velocidade_quique = 14.0
