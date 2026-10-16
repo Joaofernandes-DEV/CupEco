@@ -17,7 +17,14 @@ from dataclasses import dataclass
 from enum import Enum
 from itertools import pairwise
 
-from cupeco.dominio.ataques import DadosAtaque, Etapa, Inimigo, Roteiro, validar_ataque
+from cupeco.dominio.ataques import (
+    AVISO_MINIMO_NORMAL,
+    DadosAtaque,
+    Etapa,
+    Inimigo,
+    Roteiro,
+    validar_ataque,
+)
 from cupeco.dominio.dados import DadosInvalidos, converter, ler_toml
 from cupeco.dominio.fisica import Caixa
 from cupeco.dominio.projeteis import Projetil
@@ -54,7 +61,10 @@ class DadosChefe:
     fases: tuple[DadosFase, ...]
 
 
-def validar_chefe(dados: DadosChefe, onde: str) -> DadosChefe:
+def validar_chefe(
+    dados: DadosChefe, onde: str, aviso_minimo: int = AVISO_MINIMO_NORMAL
+) -> DadosChefe:
+    """Confere o chefe; `aviso_minimo` é o do modo da luta (`modos.py`)."""
     if dados.vida <= 0:
         raise DadosInvalidos(f"{onde}.vida: precisa ser positiva")
     if dados.quadros_transicao <= 0:
@@ -76,7 +86,7 @@ def validar_chefe(dados: DadosChefe, onde: str) -> DadosChefe:
         if not fase.rota:
             raise DadosInvalidos(f"{onde}.fases[{indice}].rota: precisa de pelo menos um ponto")
         for numero, ataque in enumerate(fase.ataques):
-            validar_ataque(ataque, f"{onde}.fases[{indice}].ataques[{numero}]")
+            validar_ataque(ataque, f"{onde}.fases[{indice}].ataques[{numero}]", aviso_minimo)
     return dados
 
 

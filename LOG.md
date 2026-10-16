@@ -308,3 +308,26 @@ Modelo:
 - O teste do aviso mínimo no Modo Simples (30 quadros) entra com os modos, no PR 3.
 - Sem mudança visível no jogo: os ataques aparecem na tela da luta (PR 7).
 - Próximo: PR 3, `feat/modos`.
+
+### 2026-10-16 17:39 — Modos Normal e Simples
+
+**Feito:**
+- PR #15 (padrões de ataque) mergeado com o CI verde.
+- `conteudo/modos.toml` + `dominio/modos.py` (D31): cada modo é um conjunto de porcentagens aplicado ao chefe ao começar a luta. Normal: tudo em 100. Simples: vida 70, projéteis 70, velocidade 80, aviso 150 (J13).
+  - **Vida:** −30%, arredondada. As fases começam nas mesmas porcentagens, então as 3 continuam (D13); um chefe cuja fase sumiria no Simples (vida pequena demais) nem carrega.
+  - **Projéteis, por ataque:** se o ataque dispara várias vezes, o intervalo aumenta (≈30% menos disparos na mesma duração); se dispara uma vez só, a quantidade cai (nunca menos que 1). O leque mantém o formato e só perde disparos quando repete. A zona não tem projéteis.
+  - **Velocidade:** −20% nos projéteis, nos inimigos menores e no movimento do chefe.
+  - **Aviso:** +50%, arredondado para cima; depois de aplicar o modo, o chefe é validado de novo com o aviso mínimo do modo (20 no Normal, 30 no Simples, J6, D30).
+  - Validação da tabela: porcentagens positivas, o aviso nunca diminui e o Simples nunca é mais difícil que o Normal.
+- `validar_ataque` e `validar_chefe` passam a receber o aviso mínimo do modo.
+- Batalha: campo `modo` (para a nota mostrar o modo, J14); os dados originais do chefe ficam guardados. O replay grava o modo; replays antigos, sem o campo, abrem como Normal.
+
+**Arquivos:** `src/cupeco/conteudo/modos.toml`, `src/cupeco/dominio/modos.py`, `tests/test_modos.py` (novos), `src/cupeco/dominio/ataques.py`, `src/cupeco/dominio/chefe.py`, `src/cupeco/dominio/batalha.py`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 3 do plano da Fase 2 (J6, J13, D13, D31). Testes: 262 → 294.
+- Decisões do João neste PR: no Simples ficam 20% mais lentos os projéteis, os inimigos e o chefe; a regra dos projéteis é por ataque, como descrita acima. A vida dos celulares não muda com o modo.
+- Teste do aviso mínimo (J6) nos dois modos: confere os dados e roda o roteiro de cada ataque, contando os quadros até o primeiro tiro, inimigo ou zona. Vale para os chefes de exemplo e para todo chefe de `conteudo/chefes/` (a partir do Dom, no PR 4).
+- Sem mudança visível no jogo: a escolha de modo e o `--modo simples` entram com a tela da luta (PR 7). A arena de testes não muda com o modo. Nada para abrir e testar à mão neste PR.
+- Para o PR 4: o `package-data` do `pyproject.toml` hoje inclui só `conteudo/*.toml`; os arquivos de `conteudo/chefes/` precisam entrar nele.
+- Próximo: PR 4, `feat/dom-obsolescencio`.

@@ -69,10 +69,13 @@ def _unitario(vetor: Ponto) -> bool:
     return abs(vetor[0] * vetor[0] + vetor[1] * vetor[1] - 1) <= TOLERANCIA_UNITARIA
 
 
-def validar_ataque(ataque: DadosAtaque, onde: str) -> DadosAtaque:
-    if ataque.aviso < AVISO_MINIMO_NORMAL:
+def validar_ataque(
+    ataque: DadosAtaque, onde: str, aviso_minimo: int = AVISO_MINIMO_NORMAL
+) -> DadosAtaque:
+    """Confere o ataque; `aviso_minimo` é o do modo da luta (J6: 20 no Normal, 30 no Simples)."""
+    if ataque.aviso < aviso_minimo:
         raise DadosInvalidos(
-            f"{onde}.aviso: todo ataque precisa de pelo menos {AVISO_MINIMO_NORMAL} quadros "
+            f"{onde}.aviso: todo ataque precisa de pelo menos {aviso_minimo} quadros "
             f"de aviso (J6), veio {ataque.aviso}"
         )
     if ataque.duracao < 1 or ataque.espera < 0 or ataque.intervalo < 0:

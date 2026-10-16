@@ -1,0 +1,21 @@
+# Modos Normal e Simples (J13, D13, D31, D26).
+#
+# Porcentagens aplicadas ao chefe ao carregar a luta (100 = sem mudança):
+# - vida: vida do chefe; as fases começam nas mesmas porcentagens, então as 3 continuam;
+# - projeteis: quantos projéteis (e inimigos menores) cada ataque solta no total;
+# - velocidade: projéteis, inimigos menores e o movimento do chefe;
+# - aviso: quadros de aviso antes de cada ataque (nunca menos que 100).
+# O Simples nunca pode ser mais difícil que o Normal, e o aviso mínimo de cada modo
+# (20 quadros no Normal, 30 no Simples, J6) é conferido depois de aplicar o modo.
+
+[normal]
+vida = 100
+projeteis = 100
+velocidade = 100
+aviso = 100
+
+[simples]
+vida = 70
+projeteis = 70
+velocidade = 80
+aviso = 150
