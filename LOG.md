@@ -167,3 +167,26 @@ Modelo:
 - O custo do tiro EX no Medidor e o botão de EX entram no PR 6 (Triagem e Medidor); aqui só a criação do projétil EX.
 - Valores iniciais de dano, cadência e alcance serão ajustados com o João na arena de testes (PR 8).
 - Próximo: PR 6, `feat/triagem-e-medidor`.
+
+### 2026-10-16 14:11 — Triagem, Medidor de Reciclagem, dano e vida
+
+**Feito:**
+- PR #8 (armas e projéteis) mergeado com o CI verde.
+- `dominio/triagem.py` + `conteudo/triagem.toml`: a tabela 5.2 inteira. Resíduo reciclável da cor da arma ativa: +1 fardo (100 pontos) e separa; reciclável de outra cor: +½ fardo (50) e separa; rejeito e perigoso: não separa e causa dano (D12).
+- `dominio/medidor.py`: Medidor de Reciclagem com 5 fardos de 100 pontos inteiros (D25); o EX gasta um fardo e o Super exige e gasta o Medidor cheio.
+- A Dara ganha:
+  - **Triagem**: apertar pulo de novo no ar abre uma janela de 10 quadros; uma tentativa por pulo; acertar quica para cima e devolve a tentativa e o dash aéreo, para encadear. O mesmo aperto continua guardado como pulo, se ela pousar logo em seguida.
+  - **Vida e dano** (J5): 3 de vida, sem cura; ao levar dano, fica 18 quadros atordoada (sem controle), é empurrada para cima e para trás e fica 90 quadros invencível. Com 0 de vida, é derrotada e para de responder aos comandos. O dash continua sem invencibilidade (D14).
+  - **EX e Super** (J4): o botão de EX dispara o tiro EX da arma ativa gastando um fardo; com o Medidor cheio, solta o Super (a Prensa), em que ela fica parada e invencível por 60 quadros.
+  - Tiros normais que acertam enchem o Medidor (2 pontos por dano); o EX não enche.
+  - Estatísticas da luta (triagens certas, de outra cor e proibidas, danos, EX e Super) para a nota (J14).
+- A batalha (PR 7) vai chamar `tocar` (projétil inimigo), `tocar_perigo` (corpo do chefe) e `acertou` (tiro da Dara num alvo).
+
+**Arquivos:** `src/cupeco/dominio/medidor.py`, `src/cupeco/dominio/triagem.py`, `src/cupeco/conteudo/triagem.toml`, `tests/test_medidor.py`, `tests/test_triagem.py`, `tests/test_jogador_combate.py` (novos), `src/cupeco/dominio/jogador.py`, `src/cupeco/conteudo/jogador.toml`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 6 do plano da Fase 1 (J3, J4, J5, D12, D14, D25). Testes: 124 → 168 (inclui a matriz completa da Triagem: 6 resíduos × 2 armas).
+- O `jogador.py` foi reescrito inteiro para acomodar atordoamento, Super e derrota no fluxo do passo; os 124 testes anteriores passaram sem mudança antes dos novos entrarem.
+- Decisão de jogo tomada no código e registrada aqui: apertar pulo no ar abre a Triagem **e** guarda o pulo para o pouso (sem isso, tentar a Triagem perto do chão "comeria" o pulo).
+- O dano do Super no chefe é aplicado pela batalha (PR 7), usando `dano_super` do `triagem.toml`.
+- Próximo: PR 7, `feat/batalha-e-replay`.
