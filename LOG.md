@@ -113,3 +113,19 @@ Modelo:
 - PR 2 do plano da Fase 1 (D15, D26). Testes: 24 → 50 (conversão e cada tipo de erro do leitor; materiais, tipos e separáveis; cor e ícone distintos; matiz de cada cor conforme a CONAMA; fonte; erros de tabela; arte e jogo com as mesmas cores).
 - Sem mudança visível no jogo: nada para abrir e testar à mão neste PR.
 - Próximo: PR 3, `feat/fisica`.
+
+### 2026-10-16 13:17 — Física: caixas, gravidade e plataformas
+
+**Feito:**
+- PR #5 (dados e materiais) mergeado com o CI verde.
+- `dominio/fisica.py`: `Caixa` (retângulo de colisão), `Plataforma` (sólida ou atravessável por baixo), `Corpo` (posição, velocidade e se está no chão) e `mover`, que aplica a gravidade com queda máxima e resolve a colisão um eixo de cada vez (x, depois y), devolvendo os `Contatos` do passo (chão, teto, paredes).
+- Colisão por **varredura**: uma borda só bate numa plataforma se, antes do passo, estava do lado de fora dela. Um corpo rápido não atravessa chão fino, e quem sobe por dentro de uma plataforma atravessável não é puxado para cima.
+- Plataformas atravessáveis: seguram só quem cai de cima, não contam como parede nem como teto, e `descer` deixa o corpo passar por elas (base para "baixo + pulo" no PR 4).
+- Coordenadas em pixels lógicos, velocidades em pixels por passo, só as quatro operações (D8, D23).
+
+**Arquivos:** `src/cupeco/dominio/fisica.py`, `tests/test_fisica.py` (novos), `LOG.md`.
+
+**Motivo / observações:**
+- PR 3 do plano da Fase 1. Testes: 50 → 69 (sobreposição de caixas, queda livre e queda máxima, pouso exato, ficar parado no chão, chão fino em queda rápida, sair da beirada, primeira plataforma do caminho, paredes dos dois lados, chão que não é parede, teto, as quatro regras da plataforma atravessável e repetibilidade).
+- Sem mudança visível no jogo: a física aparece na arena de testes (PR 8).
+- Próximo: PR 4, `feat/jogador-movimento`.
