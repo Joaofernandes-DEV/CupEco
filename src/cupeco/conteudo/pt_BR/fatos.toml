@@ -1,0 +1,46 @@
+# "Você sabia?" das telas de derrota e de vitória (J15, D35, C1, C7).
+#
+# Os fatos vêm do João ou do grupo, sempre com a fonte (D35). Enquanto um chefe não tiver
+# fatos, a tela mostra uma das dicas abaixo, que falam só das regras do jogo, sem nenhuma
+# afirmação sobre o mundo real.
+#
+# Regras conferidas na leitura e nos testes:
+# - todo fato tem fonte completa; o tipo da fonte é um destes (C1, nunca livros):
+#   "legislacao", "orgao_oficial", "artigo_revisado" ou "instituicao_pesquisa";
+# - no máximo 2 frases e 220 caracteres por texto (C7);
+# - `id` sem repetição; `chefe` é o nome do arquivo em conteudo/chefes/, sem o .toml.
+#
+# Modelo para adicionar um fato (tire os "#" do começo das linhas):
+#
+# [[fatos]]
+# id = "dom-01"
+# chefe = "dom_obsolescencio"
+# texto = "Uma ou duas frases curtas, com algo que se pode fazer (C5)."
+#
+# [fatos.fonte]
+# titulo = "Título do documento"
+# autor = "Órgão, instituição ou autores"
+# ano = 2024
+# tipo = "orgao_oficial"
+# consultado_em = "2026-10-16"  # quando a fonte foi conferida (AAAA-MM-DD)
+# url = "https://..."  # opcional
+
+[[dicas]]
+id = "dica-avisos"
+texto = "Todo ataque avisa antes de acontecer: observe o aviso e escolha para onde ir."
+
+[[dicas]]
+id = "dica-lixeira-ativa"
+texto = "Na Triagem, a lixeira ativa é a cor da sua arma: troque de arma para acertar a cor."
+
+[[dicas]]
+id = "dica-cinza-e-laranja"
+texto = "Cinza e laranja não se separam: desvie deles em vez de tentar a Triagem."
+
+[[dicas]]
+id = "dica-prensa"
+texto = "Com o Medidor cheio, o botão do EX solta a Prensa."
+
+[[dicas]]
+id = "dica-dash"
+texto = "O dash não protege: use-o para mudar de lugar, não para atravessar ataques."
