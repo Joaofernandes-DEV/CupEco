@@ -190,3 +190,23 @@ Modelo:
 - Decisão de jogo tomada no código e registrada aqui: apertar pulo no ar abre a Triagem **e** guarda o pulo para o pouso (sem isso, tentar a Triagem perto do chão "comeria" o pulo).
 - O dano do Super no chefe é aplicado pela batalha (PR 7), usando `dano_super` do `triagem.toml`.
 - Próximo: PR 7, `feat/batalha-e-replay`.
+
+### 2026-10-16 14:15 — Batalha, arena de testes em dados e replay
+
+**Feito:**
+- PR #9 (Triagem, Medidor, dano e vida) mergeado com o CI verde.
+- `conteudo/arenas.toml`: a arena de testes (chão, paredes, duas tábuas atravessáveis, ponto de início, boneco de treino e lançador de resíduos), lida com validação estrita (D26).
+- `dominio/batalha.py`:
+  - `Batalha(semente)`: a cada passo de 1/60 s, atualiza a Dara, junta os tiros dela, aplica o Super, faz o lançador atirar, move os projéteis, resolve as colisões (tiro × boneco, projétil inimigo × Dara, com Triagem) e descarta o que morreu ou saiu da tela. Devolve os eventos do passo (os da Dara e `ACERTOU_ALVO`, `SUPER_ACERTOU`, `RESIDUO_LANCADO`).
+  - Boneco de treino que soma o dano; lançador que sorteia altura e material (os 6 materiais e o ataque "sem material") com `random.Random(semente)` (D23).
+  - Tiro perfurante (EX de Plástico) acerta cada alvo uma vez só, registrado no próprio projétil.
+  - `Replay`: semente + botões segurados em cada passo, gravado e lido em JSON com versão; `reproduzir` roda a luta de novo (D24).
+- Correção feita antes do commit: a primeira versão marcava os tiros perfurantes pelo `id()` do Python, que pode ser reaproveitado por objetos novos e quebraria a repetição exata; trocado por `alvos_atingidos` no projétil.
+
+**Arquivos:** `src/cupeco/conteudo/arenas.toml`, `src/cupeco/dominio/batalha.py`, `tests/test_batalha.py` (novos), `src/cupeco/dominio/projeteis.py`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 7 do plano da Fase 1 (D8, D23, D24). Testes: 168 → 187.
+- Teste de replay: uma luta de 900 quadros com comandos aleatórios, gravada, convertida para JSON, lida de volta e reproduzida, termina no mesmo estado e com os mesmos eventos em cada passo. Outro teste roda 1200 quadros duas vezes e compara.
+- Os testes do CI rodam em Linux e Windows, então a repetição é conferida nos dois sistemas.
+- Próximo: PR 8, `feat/arena-de-testes` (a primeira tela jogável).
