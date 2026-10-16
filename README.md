@@ -17,7 +17,7 @@ Projeto de extensão da UNIP. Público: 10 anos ou mais. "CupEco" é o codinome 
 
 ## Situação
 
-🚧 **Em desenvolvimento.** Fase 1 (núcleo) concluída; Fase 2 (a primeira luta) quase concluída. Já dá para jogar a **luta contra o Dom Obsolescêncio**, ainda com formas simples no lugar da arte: as 3 fases (Torre de Tubos, Enxame Descontinuado e Placa-Mãe), nos modos Normal e Simples, com tela de derrota (progresso e dica) e tela de vitória (nota de A+ a D). A **arena de testes** continua no menu, com um boneco de treino e um lançador de resíduos. O estilo da arte, gerada por código, está na [prancha de estilo](docs/prancha-estilo.png) aprovada. O roteiro completo, as decisões e o escopo da V1 estão no [briefing.md](briefing.md); o histórico de cada mudança está no [LOG.md](LOG.md).
+🚧 **Em desenvolvimento.** Fases 1 (núcleo) e 2 (a primeira luta) concluídas; próxima: Fase 3, a arte e os sons da primeira luta. Já dá para jogar a **luta contra o Dom Obsolescêncio**, ainda com formas simples no lugar da arte: as 3 fases (Torre de Tubos, Enxame Descontinuado e Placa-Mãe), nos modos Normal e Simples, com tela de derrota (progresso e dica) e tela de vitória (nota de A+ a D). A **arena de testes** continua no menu, com um boneco de treino e um lançador de resíduos. O estilo da arte, gerada por código, está na [prancha de estilo](docs/prancha-estilo.png) aprovada. O roteiro completo, as decisões e o escopo da V1 estão no [briefing.md](briefing.md); o histórico de cada mudança está no [LOG.md](LOG.md).
 
 O executável para Windows será publicado nas [releases](https://github.com/Joaofernandes-DEV/CupEco/releases) na entrega da V1.
 

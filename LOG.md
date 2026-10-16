@@ -440,3 +440,30 @@ Modelo:
 - Ficou de fora do menu do título a tela de opções: as opções de acessibilidade (I9) chegam na Fase 3.
 - Os textos das telas ainda estão no código; vão para `pt_BR/textos.toml` quando a interface final chegar.
 - Próximo: PR 8, `docs/log-fase-2` (✅ na Fase 2).
+
+### 2026-10-16 18:55 — Fase 2 concluída
+
+**Feito:**
+- PR #20 (telas da luta) mergeado com o CI verde.
+- Fase 2 marcada com ✅ no roteiro do briefing; cada item do plano da seção 10.2 com ✅ e o número do PR; situação atualizada no briefing e no README (próxima: Fase 3).
+
+**Arquivos:** `briefing.md`, `README.md`, `LOG.md`.
+
+**Motivo / observações:**
+- Fecha a Fase 2 (Regra 2). Testes: 433 → 433 (só documentação).
+- Resumo da Fase 2, em 8 PRs (#13 a #20), todos com o CI verde em Linux e Windows antes do merge:
+  - plano e decisões D28 a D36;
+  - chefe genérico com fases por limite de vida, sem pular fase, e transição invulnerável (D28);
+  - ataques montados com peças nos dados, com aviso mínimo exigido na leitura (J6, D29, D30), mais explosão e barra de cura;
+  - modos Normal e Simples como multiplicadores, mantendo as 3 fases, com o aviso de 30 quadros no Simples testado (J13, D13, D31);
+  - o Dom Obsolescêncio em dados, com a coroa de antenas de metal (J8, D34, D36);
+  - nota de A+ a D com o modo ao lado (J14, D32);
+  - mecanismo do "Você sabia?" com fonte obrigatória e sorteio sem repetição (J15, D35);
+  - telas da luta, da escolha de modo, da derrota e da vitória, testadas e aprovadas pelo João nas 3 fases e nos dois modos (I5, I6, I7, D33).
+- Testes ao longo da fase: 204 → 433.
+- Critério do roteiro cumprido, com ressalvas:
+  - o "Você sabia?" mostra só dicas do jogo até o João ou o grupo enviarem os fatos com fonte (D35);
+  - os avisos dos ataques são só visuais; o aviso sonoro chega com os sons na Fase 3 (I5);
+  - falta conferir um controle de videogame real (desde a Fase 1).
+- Pendências que seguem: prazo do projeto (P4); fonte do jogo com acentos (I12); opções de acessibilidade e a tela de opções (I9); textos das telas em `pt_BR/textos.toml`; conferência pixel a pixel dos assets entre sistemas (R10); balanceamento dos dois modos com um grupo de teste (Fase 7).
+- Próximo: Fase 3 — arte e som da primeira luta (geradores de sprites, Dara e Dom com arte final, efeito de filme, HUD, sons e trilha, 60 FPS medidos). O plano da Fase 3 vem antes do código (Regra 1).

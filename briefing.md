@@ -2,7 +2,7 @@
 
 Diagnóstico, decisões e roteiro da primeira versão. Este documento vem antes do código (Regra 1) e é atualizado quando uma decisão muda; cada mudança é registrada no [LOG.md](LOG.md).
 
-> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1). Fase 1 (núcleo e prancha de estilo) concluída em 2026-10-16 (PRs #3 a #11), com o plano da seção 10.1 e as decisões D23 a D27; pendente só conferir um controle de videogame real na arena. Fase 2 (primeira luta, Dom Obsolescêncio com formas simples) em andamento, com o plano aprovado na seção 10.2 e as decisões D28 a D36.
+> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1). Fase 1 (núcleo e prancha de estilo) concluída em 2026-10-16 (PRs #3 a #11), com o plano da seção 10.1 e as decisões D23 a D27; pendente só conferir um controle de videogame real na arena. Fase 2 (primeira luta, Dom Obsolescêncio com formas simples) concluída em 2026-10-16 (PRs #13 a #20), com o plano da seção 10.2 e as decisões D28 a D36; o "Você sabia?" mostra só dicas do jogo até o João ou o grupo enviarem os fatos com fonte (D35).
 
 ---
 
@@ -310,7 +310,7 @@ Cada fase termina com o jogo funcionando na `main` (Regra 2). Até a Fase 2 tudo
 |------|------|-------|----------------|
 | 0. Fundação ✅ | Repositório, esqueleto, lint, CI, documentos | D1 a D7, R13 | O jogo abre e fecha sem erro (`--fechar-em`); lint e CI passando; `main` protegida; CLAUDE.md, CONTRIBUTING, README, LOG e licenças criados |
 | 1. Núcleo ✅ | Jogador e combate no domínio; prancha de estilo | D8, D12, D14, D15, D19, J1 a J5, J7 | Física, Dara, armas, Triagem, Medidor e dano modelados e testados sem janela (matriz da Triagem e replay); uma **arena de testes** com retângulos pode ser jogada no teclado e no controle; **prancha de estilo aprovada pelo João** |
-| 2. Primeira luta | Dom Obsolescêncio com formas simples | J6, J8, J13, J14, J15, D13, D17, R5 | As 3 fases do Dom podem ser jogadas do início ao fim nos dois modos, com padrões em dados, avisos testados, tela de derrota com progresso e "Você sabia?", e tela de vitória com nota |
+| 2. Primeira luta ✅ | Dom Obsolescêncio com formas simples | J6, J8, J13, J14, J15, D13, D17, R5 | As 3 fases do Dom podem ser jogadas do início ao fim nos dois modos, com padrões em dados, avisos testados, tela de derrota com progresso e "Você sabia?", e tela de vitória com nota |
 | 3. Arte e som | Pipeline e primeira luta com arte final | D10, D11, I1 a I9, I11, I12, R2, R3, R4, R9, R11, R12 | Geradores de arte funcionando e conferidos no CI; Dara e Dom Obsolescêncio com arte final; efeito de filme, HUD, sons e trilha; 60 FPS medidos; **demonstração pronta para a extensão** |
 | 4. Barão Fuligem | Segundo chefe | J9 | As 3 fases jogáveis com formas simples, depois com arte final, nos dois modos, a 60 FPS |
 | 5. Leviatã de Plástico | Terceiro chefe e fase de voo | J10, D16 | O voo com o Pet-planador funciona e é testado no domínio; as 3 fases com arte final, nos dois modos, a 60 FPS |
@@ -339,18 +339,18 @@ Um PR por item, cada um com testes, entrada no LOG e CI verde. A prancha vem pri
 
 Se não houver um controle de videogame para o teste manual, o suporte a controle é testado com um controle simulado e conferido depois.
 
-### 10.2 Plano da Fase 2 (aprovado em 2026-10-16)
+### 10.2 Plano da Fase 2 (aprovado e concluído em 2026-10-16)
 
 Um PR por item, cada um com testes, entrada no LOG e CI verde. A luta usa formas simples; a arte do Dom entra na Fase 3.
 
 | # | Branch | Entrega | Itens |
 |---|--------|---------|-------|
-| 0 | `docs/plano-fase-2` | Este plano e as decisões D28 a D35 | — |
-| 1 | `feat/chefe-e-fases` | Chefe genérico: vida, fases por limite, transição invulnerável, movimento por rota e dano por contato; a batalha passa a aceitar chefe além do boneco | D28 |
-| 2 | `feat/padroes-de-ataque` | Peças de ataque com aviso (rajada, leque, mirado, chuva, zona, inimigos menores), lista de ataques por fase sorteada com semente, validação dos dados e teste do aviso mínimo | J6, D29, D30, D34 |
-| 3 | `feat/modos` | Modos Normal e Simples, com teste de que as 3 fases se mantêm | J13, D13, D31 |
-| 4 | `feat/dom-obsolescencio` | O Dom em dados: Torre de Tubos, Enxame Descontinuado (celulares destrutíveis e baterias estufadas que explodem) e Placa-Mãe (trilhas elétricas e a barra de "Atualização Obrigatória") | J8 |
-| 5 | `feat/nota` | Nota da luta (A+ a D) com o modo ao lado | J14, D32 |
-| 6 | `feat/voce-sabia` | Mecanismo do "Você sabia?": `fatos.toml` com fonte obrigatória por teste, sorteio sem repetição por chefe e mensagens neutras enquanto não houver fatos; os fatos vêm do João ou do grupo | J15, D35, C1 |
-| 7 | `feat/telas-da-luta` | Tela da luta com o Dom em formas simples (sem vida do chefe na tela), escolha de modo, tela de derrota com barra de progresso, marcos de fase e "Você sabia?" com "tentar de novo" imediato, tela de vitória com nota e estatísticas, título com menu; teste do João nas 3 fases e nos dois modos | I6, I7, D17, D33, R5 |
-| 8 | `docs/log-fase-2` | ✅ na Fase 2 e registro final | — |
+| 0 ✅ | `docs/plano-fase-2` (PR #13) | Este plano e as decisões D28 a D35 | — |
+| 1 ✅ | `feat/chefe-e-fases` (PR #14) | Chefe genérico: vida, fases por limite, transição invulnerável, movimento por rota e dano por contato; a batalha passa a aceitar chefe além do boneco | D28 |
+| 2 ✅ | `feat/padroes-de-ataque` (PR #15) | Peças de ataque com aviso (rajada, leque, mirado, chuva, zona, inimigos menores), lista de ataques por fase sorteada com semente, validação dos dados e teste do aviso mínimo | J6, D29, D30, D34 |
+| 3 ✅ | `feat/modos` (PR #16) | Modos Normal e Simples, com teste de que as 3 fases se mantêm | J13, D13, D31 |
+| 4 ✅ | `feat/dom-obsolescencio` (PR #17) | O Dom em dados: Torre de Tubos, Enxame Descontinuado (celulares destrutíveis e baterias estufadas que explodem) e Placa-Mãe (trilhas elétricas e a barra de "Atualização Obrigatória") | J8 |
+| 5 ✅ | `feat/nota` (PR #18) | Nota da luta (A+ a D) com o modo ao lado | J14, D32 |
+| 6 ✅ | `feat/voce-sabia` (PR #19) | Mecanismo do "Você sabia?": `fatos.toml` com fonte obrigatória por teste, sorteio sem repetição por chefe e mensagens neutras enquanto não houver fatos; os fatos vêm do João ou do grupo | J15, D35, C1 |
+| 7 ✅ | `feat/telas-da-luta` (PR #20) | Tela da luta com o Dom em formas simples (sem vida do chefe na tela), escolha de modo, tela de derrota com barra de progresso, marcos de fase e "Você sabia?" com "tentar de novo" imediato, tela de vitória com nota e estatísticas, título com menu; teste do João nas 3 fases e nos dois modos | I6, I7, D17, D33, R5 |
+| 8 ✅ | `docs/log-fase-2` | ✅ na Fase 2 e registro final | — |
