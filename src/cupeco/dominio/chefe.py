@@ -17,6 +17,7 @@ import math
 import random
 from dataclasses import dataclass
 from enum import Enum
+from importlib import resources
 from itertools import pairwise
 
 from cupeco.dominio.ataques import (
@@ -28,7 +29,7 @@ from cupeco.dominio.ataques import (
     Roteiro,
     validar_ataque,
 )
-from cupeco.dominio.dados import DadosInvalidos, converter, ler_toml
+from cupeco.dominio.dados import PACOTE_CONTEUDO, DadosInvalidos, converter, ler_toml
 from cupeco.dominio.fisica import Caixa
 from cupeco.dominio.projeteis import Projetil
 
@@ -97,6 +98,13 @@ def validar_chefe(
 def carregar_chefe(nome: str) -> DadosChefe:
     onde = f"chefes.{nome}"
     return validar_chefe(converter(ler_toml(f"chefes/{nome}.toml"), DadosChefe, onde), onde)
+
+
+def listar_chefes() -> tuple[str, ...]:
+    """Nomes dos arquivos de `conteudo/chefes/`, sem o .toml, em ordem."""
+    pasta = resources.files(PACOTE_CONTEUDO).joinpath("chefes")
+    arquivos = pasta.iterdir() if pasta.is_dir() else ()
+    return tuple(sorted(a.name.removesuffix(".toml") for a in arquivos if a.name.endswith(".toml")))
 
 
 class Chefe:
