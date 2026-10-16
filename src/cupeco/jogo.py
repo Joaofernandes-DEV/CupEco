@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import random
 from typing import TYPE_CHECKING
 
 import pygame
 
 from cupeco.config import ALTURA_TELA, FPS, LARGURA_TELA, TITULO
+from cupeco.dominio.fatos import SorteioDeFatos, carregar_fatos
 from cupeco.passo_fixo import PassoFixo
 from cupeco.ui.entrada import Entrada
 
@@ -27,6 +29,11 @@ class Jogo:
         self.entrada = Entrada()
         self.estado: Estado | None = None
         self.rodando = False
+        # Teclas de depuração da luta (F1: caixas e vida do chefe; F2: pular fase), só com
+        # `--depurar`: a vida do chefe não aparece no jogo normal (D33).
+        self.depurar = False
+        # O "Você sabia?" da sessão inteira: não repete entre uma tentativa e outra (J15).
+        self.fatos = SorteioDeFatos(carregar_fatos(), random.Random())
 
     def trocar_estado(self, estado: Estado) -> None:
         self.estado = estado
