@@ -18,6 +18,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from functools import cache
 
+from cupeco.dominio.ataques import Inimigo
 from cupeco.dominio.chefe import Chefe, DadosChefe, EventoChefe, carregar_chefe
 from cupeco.dominio.comandos import Botao, Comandos
 from cupeco.dominio.dados import DadosInvalidos, converter, ler_toml
@@ -152,6 +153,7 @@ class EventoBatalha(Enum):
     ACERTOU_ALVO = "acertou_alvo"
     SUPER_ACERTOU = "super_acertou"
     RESIDUO_LANCADO = "residuo_lancado"
+    INIMIGO_DESTRUIDO = "inimigo_destruido"
 
 
 class Resultado(Enum):
@@ -177,7 +179,8 @@ class Batalha:
         dados_alvo, dados_lancador = self.arena.alvo, self.arena.lancador
         self.alvo = AlvoDeTreino(Caixa(*dados_alvo.caixa)) if dados_alvo else None
         self.lancador = Lancador(dados_lancador, self.sorteio) if dados_lancador else None
-        self.chefe = Chefe(self.dados_chefe) if self.dados_chefe else None
+        self.chefe = Chefe(self.dados_chefe, self.sorteio) if self.dados_chefe else None
+        self.inimigos: list[Inimigo] = []
         self.alvos: list[AlvoDeTreino | Chefe] = [a for a in (self.alvo, self.chefe) if a]
         self.projeteis: list[Projetil] = []
         self.quadro = 0
@@ -211,11 +214,29 @@ class Batalha:
                     eventos.append(EventoBatalha.SUPER_ACERTOU)
                     eventos.extend(acerto[1:])
 
+        centro_dara = jogador.corpo.caixa.centro
         if self.chefe is not None:
-            eventos.extend(self.chefe.atualizar())
-            contato = self.chefe.dados.dano_por_contato and not self.chefe.derrotado
-            if contato and self.chefe.caixa.sobrepoe(jogador.corpo.caixa):
+            chefe = self.chefe
+            eventos.extend(chefe.atualizar(centro_dara))
+            self.projeteis.extend(chefe.novos_projeteis)
+            self.inimigos.extend(chefe.novos_inimigos)
+            caixa_dara = jogador.corpo.caixa
+            contato = chefe.dados.dano_por_contato and not chefe.derrotado
+            if contato and chefe.caixa.sobrepoe(caixa_dara):
                 eventos.extend(jogador.tocar_perigo())
+            zona = chefe.zona_ativa
+            if zona is not None and zona.sobrepoe(caixa_dara):
+                eventos.extend(jogador.tocar_perigo())
+
+        restantes = []
+        for inimigo in self.inimigos:
+            inimigo.atualizar(centro_dara)
+            if inimigo.caixa.sobrepoe(jogador.corpo.caixa) and not jogador.invencivel:
+                eventos.extend(jogador.tocar_perigo())
+                eventos.append(EventoBatalha.INIMIGO_DESTRUIDO)
+            else:
+                restantes.append(inimigo)
+        self.inimigos = restantes
 
         if self.lancador is not None:
             lancado = self.lancador.atualizar()
@@ -238,7 +259,7 @@ class Batalha:
         for projetil in self.projeteis:
             remover = False
             if projetil.dono is Dono.JOGADOR:
-                for alvo in self.alvos:
+                for alvo in [*self.alvos, *self.inimigos]:
                     if alvo.nome in projetil.alvos_atingidos:
                         continue
                     if not projetil.caixa.sobrepoe(alvo.caixa):
@@ -259,6 +280,9 @@ class Batalha:
             if not remover:
                 restantes.append(projetil)
         self.projeteis = restantes
+        vivos = [inimigo for inimigo in self.inimigos if inimigo.vida > 0]
+        eventos.extend([EventoBatalha.INIMIGO_DESTRUIDO] * (len(self.inimigos) - len(vivos)))
+        self.inimigos = vivos
         return eventos
 
     def retrato(self) -> tuple:
@@ -275,6 +299,7 @@ class Batalha:
             self.jogador.medidor.pontos,
             self.alvo.dano_recebido if self.alvo else None,
             (self.chefe.vida, self.chefe.fase, self.chefe.x, self.chefe.y) if self.chefe else None,
+            tuple((i.nome, i.x, i.y, i.vida) for i in self.inimigos),
             tuple((p.x, p.y, p.dono, p.material) for p in self.projeteis),
         )
 

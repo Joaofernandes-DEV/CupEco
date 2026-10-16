@@ -5,18 +5,22 @@ Um dano grande nunca pula uma fase: a vida para no limite da fase seguinte e a t
 começa, para que todo jogador veja as 3 fases de cada chefe (no espírito da D13).
 
 O chefe se move por uma rota de pontos (o centro da caixa vai de um ponto ao outro, em
-velocidade constante, e volta ao primeiro). Os ataques de cada fase entram no próximo PR.
+velocidade constante, e volta ao primeiro) e ataca com o roteiro da fase (`ataques.py`):
+os ataques param durante a transição e recomeçam com a lista da fase nova.
 """
 
 from __future__ import annotations
 
 import math
+import random
 from dataclasses import dataclass
 from enum import Enum
 from itertools import pairwise
 
+from cupeco.dominio.ataques import DadosAtaque, Etapa, Inimigo, Roteiro, validar_ataque
 from cupeco.dominio.dados import DadosInvalidos, converter, ler_toml
 from cupeco.dominio.fisica import Caixa
+from cupeco.dominio.projeteis import Projetil
 
 Ponto = tuple[float, float]
 
@@ -26,6 +30,8 @@ class EventoChefe(Enum):
     MUDOU_FASE = "chefe_mudou_fase"
     TERMINOU_TRANSICAO = "chefe_terminou_transicao"
     DERROTADO = "chefe_derrotado"
+    ATAQUE_AVISO = "ataque_aviso"  # começou o aviso de um ataque (som e desenho do alerta)
+    ATAQUE_ATIVO = "ataque_ativo"
 
 
 @dataclass(frozen=True)
@@ -36,6 +42,7 @@ class DadosFase:
     altura: float
     rota: tuple[Ponto, ...]
     velocidade: float
+    ataques: tuple[DadosAtaque, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -68,6 +75,8 @@ def validar_chefe(dados: DadosChefe, onde: str) -> DadosChefe:
             raise DadosInvalidos(f"{onde}.fases[{indice}]: tamanho e velocidade inválidos")
         if not fase.rota:
             raise DadosInvalidos(f"{onde}.fases[{indice}].rota: precisa de pelo menos um ponto")
+        for numero, ataque in enumerate(fase.ataques):
+            validar_ataque(ataque, f"{onde}.fases[{indice}].ataques[{numero}]")
     return dados
 
 
@@ -79,8 +88,12 @@ def carregar_chefe(nome: str) -> DadosChefe:
 class Chefe:
     """Um chefe em luta. `x` e `y` são o centro da caixa."""
 
-    def __init__(self, dados: DadosChefe) -> None:
+    def __init__(self, dados: DadosChefe, sorteio: random.Random | None = None) -> None:
         self.dados = dados
+        self._sorteio = sorteio or random.Random(0)
+        self.roteiro = Roteiro(dados.fases[0].ataques, self._sorteio)
+        self.novos_projeteis: list[Projetil] = []
+        self.novos_inimigos: list[Inimigo] = []
         self.nome = dados.nome
         self.vida = dados.vida
         self.fase = 0
@@ -129,14 +142,36 @@ class Chefe:
 
     # --- passo ----------------------------------------------------------------------
 
-    def atualizar(self) -> list[EventoChefe]:
+    @property
+    def zona_ativa(self) -> Caixa | None:
+        return self.roteiro.zona_ativa
+
+    @property
+    def zona_avisada(self) -> Caixa | None:
+        return self.roteiro.zona_avisada
+
+    @property
+    def em_aviso(self) -> bool:
+        return self.roteiro.atual is not None and self.roteiro.etapa is Etapa.AVISO
+
+    def atualizar(self, alvo: Ponto | None = None) -> list[EventoChefe]:
+        """Um passo. `alvo` é o centro da Dara (para os tiros mirados e os inimigos)."""
         eventos = []
+        self.novos_projeteis, self.novos_inimigos = [], []
         if self._transicao > 0:
             self._transicao -= 1
             if self._transicao == 0:
                 eventos.append(EventoChefe.TERMINOU_TRANSICAO)
-        if not self.derrotado:
-            self._andar()
+        if self.derrotado:
+            return eventos
+        self._andar()
+        if self._transicao == 0:
+            disparo, comecos = self.roteiro.atualizar((self.x, self.y), alvo or (self.x, self.y))
+            self.novos_projeteis, self.novos_inimigos = disparo.projeteis, disparo.inimigos
+            if Etapa.AVISO.value in comecos:
+                eventos.append(EventoChefe.ATAQUE_AVISO)
+            if Etapa.ATIVO.value in comecos:
+                eventos.append(EventoChefe.ATAQUE_ATIVO)
         return eventos
 
     def _andar(self) -> None:
@@ -160,10 +195,12 @@ class Chefe:
         piso = self.limite_da_fase(proxima) if proxima < len(self.dados.fases) else 0
         self.vida = max(piso, self.vida - dano)
         if self.vida == 0:
+            self.roteiro.interromper()
             eventos.append(EventoChefe.DERROTADO)
         elif proxima < len(self.dados.fases) and self.vida <= piso:
             self.fase = proxima
             self._transicao = self.dados.quadros_transicao
             self._alvo_da_rota = 0
+            self.roteiro = Roteiro(self.dados.fases[proxima].ataques, self._sorteio)
             eventos.append(EventoChefe.MUDOU_FASE)
         return eventos

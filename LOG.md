@@ -289,3 +289,22 @@ Modelo:
 - Um teste revelou que o chefe "gastava" o primeiro passo chegando ao ponto onde já estava; corrigido para começar rumo ao segundo ponto da rota.
 - Sem mudança visível no jogo: o chefe aparece na tela no PR 7 da Fase 2. A arena de testes continua igual.
 - Próximo: PR 2, `feat/padroes-de-ataque`.
+
+### 2026-10-16 14:43 — Padrões de ataque dos chefes
+
+**Feito:**
+- PR #14 (chefe genérico com fases) mergeado com o CI verde.
+- `dominio/ataques.py` (D29): ataques montados com peças nos dados — **rajada** (com alturas sorteadas), **leque** (rotações [cosseno, seno]), **mirado** (na direção da Dara no disparo), **chuva** (pontos sorteados já no aviso, para o jogador ver onde vai cair), **zona** (área do chão que machuca) e **inimigos** menores (D34).
+- Todo ataque passa por **aviso → ativo → espera**. Nada é disparado e nenhuma zona machuca durante o aviso; o aviso mínimo de 20 quadros é **exigido na leitura dos dados** (J6, D30) — um chefe com ataque de aviso curto nem carrega.
+- `Roteiro`: escolhe os ataques da fase com a semente da luta, sem repetir o mesmo duas vezes seguidas (D23).
+- `Inimigo`: voa até a Dara, machuca no contato (e some), cai com tiros; os tiros nele enchem o Medidor.
+- Chefe: cada fase tem a sua lista de ataques (validada); os ataques param na transição e recomeçam com a lista da fase nova; param na derrota. Novos eventos `ATAQUE_AVISO` e `ATAQUE_ATIVO` para som e desenho dos alertas.
+- Batalha: tiros do chefe, zona ativa, inimigos (movimento, contato, destruição por tiros) e o evento `INIMIGO_DESTRUIDO`; o retrato da luta inclui os inimigos.
+
+**Arquivos:** `src/cupeco/dominio/ataques.py`, `tests/test_ataques.py` (novos), `src/cupeco/dominio/chefe.py`, `src/cupeco/dominio/batalha.py`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 2 do plano da Fase 2 (J6, D29, D30, D34). Testes: 229 → 262.
+- O teste do aviso mínimo no Modo Simples (30 quadros) entra com os modos, no PR 3.
+- Sem mudança visível no jogo: os ataques aparecem na tela da luta (PR 7).
+- Próximo: PR 3, `feat/modos`.
