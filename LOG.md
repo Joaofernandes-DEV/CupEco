@@ -271,3 +271,21 @@ Modelo:
 - Regra 1 aplicada à Fase 2: o plano vem antes do código. Testes: 204 → 204 (só documentação).
 - Enquanto os fatos não chegarem, o "Você sabia?" mostra só mensagens neutras, sem afirmações sobre o mundo real (D35, C1).
 - Próximo: PR 1, `feat/chefe-e-fases`.
+
+### 2026-10-16 14:38 — Chefe genérico com fases e batalha contra chefe
+
+**Feito:**
+- PR #13 (plano da Fase 2) mergeado com o CI verde.
+- `dominio/chefe.py`: `DadosChefe` e `DadosFase` (nome, porcentagem da vida em que a fase começa, tamanho, rota e velocidade), com validação; `Chefe` com vida em pontos inteiros, fase atual, transição invulnerável ao trocar de fase, movimento por rota em velocidade constante, `progresso` e `marcos` para a barra da tela de derrota (I6), e `carregar_chefe` para os arquivos de `conteudo/chefes/` (D28).
+- **Nenhuma fase é pulada**: um dano grande (o Super, por exemplo) para no limite da fase seguinte e abre a transição, para todo jogador ver as 3 fases (no espírito da D13).
+- Batalha generalizada: lista de alvos (boneco e/ou chefe); chefe em transição absorve os tiros sem levar dano nem encher o Medidor; dano por contato com o chefe; o Super fere todos os alvos vulneráveis; `resultado` (vitória ou derrota); arenas podem não ter boneco nem lançador.
+- Replay guarda o nome do chefe (campo opcional no JSON, compatível com os replays antigos).
+- O leitor de dados passa a aceitar campos opcionais (`X | None`).
+
+**Arquivos:** `src/cupeco/dominio/chefe.py`, `tests/test_chefe.py` (novos), `src/cupeco/dominio/batalha.py`, `src/cupeco/dominio/dados.py`, `tests/test_dados.py`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 1 do plano da Fase 2 (D28). Testes: 204 → 229.
+- Um teste revelou que o chefe "gastava" o primeiro passo chegando ao ponto onde já estava; corrigido para começar rumo ao segundo ponto da rota.
+- Sem mudança visível no jogo: o chefe aparece na tela no PR 7 da Fase 2. A arena de testes continua igual.
+- Próximo: PR 2, `feat/padroes-de-ataque`.
