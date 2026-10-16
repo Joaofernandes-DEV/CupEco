@@ -96,3 +96,20 @@ Modelo:
 - Conferido à mão pelo Claude, abrindo a imagem gerada: corrigidas as solas que pareciam rodas (a ponta da perna aparecia sob a bota), o canhão que cobria o rosto no pulo, a faixa da cor ativa pequena demais e a garrafa PET que parecia um frasco de ketchup.
 - Falta a aprovação do João (D19); ajustes pedidos entram neste mesmo PR antes do merge.
 - A prancha não é conferida pixel a pixel no CI; essa conferência entre sistemas entra com os spritesheets na Fase 3 (R10).
+
+### 2026-10-16 13:12 — Dados de jogo em TOML e materiais da Triagem
+
+**Feito:**
+- Prancha de estilo **aprovada pelo João** em 2026-10-16, sem ajustes (D19); PRs #3 (plano da Fase 1) e #4 (prancha) mergeados com o CI verde.
+- `dominio/dados.py`: leitor dos TOML de `src/cupeco/conteudo/` com validação estrita (D26). Converte para dataclasses (aninhadas), textos, inteiros, números, verdadeiro/falso e tuplas; chave desconhecida, faltando ou de tipo errado gera `DadosInvalidos` com o caminho da chave (ex.: `materiais.papel.cor`).
+- `dominio/materiais.py`: os 6 materiais da Triagem; a classificação (reciclável, rejeito, perigoso) e quem pode ser separado é regra no código (D12); nome, cor e ícone vêm de `conteudo/materiais.toml`, com a fonte. A tabela exige cor e ícone em todos, sem repetição (D15, R3).
+- Fonte conferida no texto da resolução: CONAMA nº 275, de 25/04/2001 (DOU de 19/06/2001), Anexo com azul (papel), vermelho (plástico), verde (vidro), amarelo (metal), laranja (resíduos perigosos) e cinza (rejeitos não recicláveis, misturados ou contaminados) (C1).
+- A paleta da arte (`ferramentas/arte/paleta.py`) passa a ler as cores dos materiais dessa mesma tabela: uma só fonte de verdade. A prancha regenerada saiu idêntica, pixel a pixel.
+- Os TOML vão junto no pacote (`package-data`).
+
+**Arquivos:** `src/cupeco/dominio/dados.py`, `src/cupeco/dominio/materiais.py`, `src/cupeco/conteudo/__init__.py`, `src/cupeco/conteudo/materiais.toml` (novos), `ferramentas/arte/paleta.py`, `pyproject.toml`, `tests/test_dados.py`, `tests/test_materiais.py` (novos), `LOG.md`.
+
+**Motivo / observações:**
+- PR 2 do plano da Fase 1 (D15, D26). Testes: 24 → 50 (conversão e cada tipo de erro do leitor; materiais, tipos e separáveis; cor e ícone distintos; matiz de cada cor conforme a CONAMA; fonte; erros de tabela; arte e jogo com as mesmas cores).
+- Sem mudança visível no jogo: nada para abrir e testar à mão neste PR.
+- Próximo: PR 3, `feat/fisica`.

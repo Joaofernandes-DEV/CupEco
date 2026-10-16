@@ -1,0 +1,41 @@
+# Materiais da Triagem (D15).
+#
+# As cores seguem o padrão da coleta seletiva da CONAMA: azul para papel, vermelho para
+# plástico, verde para vidro, amarelo para metal, laranja para resíduos perigosos e cinza
+# para o resíduo não reciclável, misturado ou contaminado (rejeito). Os tons exatos (RGB)
+# são escolhas de arte; a resolução define só as cores.
+#
+# Quais materiais podem ser separados é regra do jogo (src/cupeco/dominio/materiais.py).
+# O ícone de cada material é desenhado em ferramentas/arte/residuos.py (I4).
+
+fonte = "Resolução CONAMA nº 275, de 25 de abril de 2001 (DOU de 19/06/2001), Anexo: código de cores para a coleta seletiva"
+
+[papel]
+nome = "Papel"
+cor = [38, 98, 182]
+icone = "bola_de_papel"
+
+[plastico]
+nome = "Plástico"
+cor = [206, 44, 40]
+icone = "garrafa_pet"
+
+[vidro]
+nome = "Vidro"
+cor = [36, 140, 72]
+icone = "pote_de_vidro"
+
+[metal]
+nome = "Metal"
+cor = [242, 190, 28]
+icone = "lata"
+
+[rejeito]
+nome = "Rejeito"
+cor = [128, 126, 122]
+icone = "saco_misturado"
+
+[perigoso]
+nome = "Perigoso"
+cor = [240, 122, 18]
+icone = "pilha"
