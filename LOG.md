@@ -255,3 +255,19 @@ Modelo:
 - Critério do roteiro com uma ressalva: a arena funciona no teclado (testado pelo João) e no controle (testado com controle simulado); falta conferir com um controle de videogame real.
 - Pendências que seguem: prazo do projeto (P4); fonte do jogo com acentos (I12, Fase 3); conferência pixel a pixel dos assets entre sistemas (R10, Fase 3).
 - Próximo: Fase 2 — a primeira luta (Dom Obsolescêncio) com formas simples, padrões de ataque em dados, Modo Simples, tela de derrota com progresso e "Você sabia?", tela de vitória com nota. O plano da Fase 2 vem antes do código (Regra 1).
+
+### 2026-10-16 14:32 — Plano da Fase 2
+
+**Feito:**
+- PR #12 (fechamento da Fase 1) mergeado com o CI verde.
+- Plano da Fase 2 aprovado pelo João e registrado no briefing (seção 10.2): 9 PRs, do chefe genérico às telas da luta contra o Dom Obsolescêncio.
+- Novas decisões: chefe com fases por limite de vida (D28), ataques montados com peças nos dados (D29), aviso mínimo testado em todo ataque (D30), Modo Simples como multiplicadores (D31) e nota como função pura (D32).
+- Decisões de jogo do João: a vida do chefe **não** aparece na tela durante a luta (D33); os celulares da fase 2 são **destrutíveis** (D34); os fatos do "Você sabia?" vêm **do João ou do grupo**, com as fontes, e o jogo exige fonte por teste (D35).
+- Situação do briefing atualizada: Fase 2 em andamento.
+
+**Arquivos:** `briefing.md`, `LOG.md`.
+
+**Motivo / observações:**
+- Regra 1 aplicada à Fase 2: o plano vem antes do código. Testes: 204 → 204 (só documentação).
+- Enquanto os fatos não chegarem, o "Você sabia?" mostra só mensagens neutras, sem afirmações sobre o mundo real (D35, C1).
+- Próximo: PR 1, `feat/chefe-e-fases`.

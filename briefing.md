@@ -2,7 +2,7 @@
 
 Diagnóstico, decisões e roteiro da primeira versão. Este documento vem antes do código (Regra 1) e é atualizado quando uma decisão muda; cada mudança é registrada no [LOG.md](LOG.md).
 
-> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1). Fase 1 (núcleo e prancha de estilo) concluída em 2026-10-16 (PRs #3 a #11), com o plano da seção 10.1 e as decisões D23 a D27; pendente só conferir um controle de videogame real na arena. Próxima: Fase 2 (primeira luta, Dom Obsolescêncio com formas simples).
+> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1). Fase 1 (núcleo e prancha de estilo) concluída em 2026-10-16 (PRs #3 a #11), com o plano da seção 10.1 e as decisões D23 a D27; pendente só conferir um controle de videogame real na arena. Fase 2 (primeira luta, Dom Obsolescêncio com formas simples) em andamento, com o plano aprovado na seção 10.2 e as decisões D28 a D35.
 
 ---
 
@@ -256,6 +256,14 @@ Valem para todo texto, fato, imagem, som e mecânica, e são conferidos na revis
 | D25 | Como contar o Medidor de Reciclagem? | Em **pontos inteiros**: 100 pontos = 1 fardo; triagem certa +100, de outra cor +50 | Sem "meio fardo" em número decimal; conta exata e testável (D12) |
 | D26 | Onde ficam os valores de jogo? | Em TOML (`src/cupeco/conteudo/`), lidos com validação estrita: chave desconhecida ou faltando é erro | Equilíbrio ajustado sem mexer no código; erro de digitação não passa em silêncio |
 | D27 | Como entram as ferramentas de arte? | Pillow em versão fixa no extra `[ferramentas]` do `pyproject.toml`; a prancha de estilo é gerada em `docs/prancha-estilo.png` | Arte como código reproduzível (D10, D19); o jogo em si não depende do Pillow |
+| D28 | Como funciona um chefe? | Vida em pontos inteiros; troca de fase quando a vida cai abaixo de limites definidos nos dados (ex.: 66% e 33%); na transição fica invulnerável por um tempo e a arena pode mudar | Padrão do gênero e testável sem janela |
+| D29 | Como se descrevem os ataques? | Por peças pequenas nos dados (rajada, leque, tiro mirado na Dara, chuva vinda do alto, zona de perigo no chão e inimigos menores); cada fase tem a sua lista de ataques, em ordem sorteada com semente (D23) | Os três chefes reaproveitam as mesmas peças; o equilíbrio é ajustado no TOML (D26) |
+| D30 | Como garantir ataques justos? | Todo ataque tem aviso antes de causar dano; um teste confere, em todos os ataques, o mínimo de 20 quadros no Normal e 30 no Simples (J6) | A dificuldade vem de ler o ataque, não de ser pego de surpresa (R5) |
+| D31 | Como se aplica o Modo Simples? | Um conjunto de multiplicadores aplicado ao carregar a luta: vida −30%, projéteis −30%, velocidade −20%, aviso +50%, mantendo as 3 fases (D13) | Um só lugar para ajustar a dificuldade; um teste garante que nenhuma fase some |
+| D32 | Como se calcula a nota? | Função pura do tempo, da vida restante, das triagens certas e do uso do Super, com faixas nos dados; o modo fica registrado ao lado da nota (J14) | Testável e ajustável sem mexer no código |
+| D33 | A vida do chefe aparece na tela? | **Não**: o avanço é percebido pelas trocas de fase, e a barra de progresso aparece na tela de derrota (I6) | Decisão do João em 2026-10-16: tensão do gênero e valor do progresso ao perder |
+| D34 | Os celulares da fase 2 do Dom podem ser destruídos? | **Sim**: "inimigos menores" que voam até a Dara, machucam no contato e caem com tiros, como peça de ataque reaproveitável (D29) | Decisão do João em 2026-10-16: fase mais viva e sistema útil para os outros chefes |
+| D35 | Quem traz os fatos do "Você sabia?"? | **O João ou o grupo**, com as fontes; o Claude coloca no jogo, com teste que exige fonte. Sem fato fornecido, a tela mostra só mensagens neutras, sem nenhuma afirmação sobre o mundo real. A revisão externa (D22) continua na Fase 7 | Decisão do João em 2026-10-16 (C1, R6) |
 
 **Perguntas respondidas na revisão de 2026-10-16:**
 
@@ -329,3 +337,19 @@ Um PR por item, cada um com testes, entrada no LOG e CI verde. A prancha vem pri
 | 9 ✅ | `docs/log-fase-1` | ✅ na Fase 1 e registro final | — |
 
 Se não houver um controle de videogame para o teste manual, o suporte a controle é testado com um controle simulado e conferido depois.
+
+### 10.2 Plano da Fase 2 (aprovado em 2026-10-16)
+
+Um PR por item, cada um com testes, entrada no LOG e CI verde. A luta usa formas simples; a arte do Dom entra na Fase 3.
+
+| # | Branch | Entrega | Itens |
+|---|--------|---------|-------|
+| 0 | `docs/plano-fase-2` | Este plano e as decisões D28 a D35 | — |
+| 1 | `feat/chefe-e-fases` | Chefe genérico: vida, fases por limite, transição invulnerável, movimento por rota e dano por contato; a batalha passa a aceitar chefe além do boneco | D28 |
+| 2 | `feat/padroes-de-ataque` | Peças de ataque com aviso (rajada, leque, mirado, chuva, zona, inimigos menores), lista de ataques por fase sorteada com semente, validação dos dados e teste do aviso mínimo | J6, D29, D30, D34 |
+| 3 | `feat/modos` | Modos Normal e Simples, com teste de que as 3 fases se mantêm | J13, D13, D31 |
+| 4 | `feat/dom-obsolescencio` | O Dom em dados: Torre de Tubos, Enxame Descontinuado (celulares destrutíveis e baterias estufadas que explodem) e Placa-Mãe (trilhas elétricas e a barra de "Atualização Obrigatória") | J8 |
+| 5 | `feat/nota` | Nota da luta (A+ a D) com o modo ao lado | J14, D32 |
+| 6 | `feat/voce-sabia` | Mecanismo do "Você sabia?": `fatos.toml` com fonte obrigatória por teste, sorteio sem repetição por chefe e mensagens neutras enquanto não houver fatos; os fatos vêm do João ou do grupo | J15, D35, C1 |
+| 7 | `feat/telas-da-luta` | Tela da luta com o Dom em formas simples (sem vida do chefe na tela), escolha de modo, tela de derrota com barra de progresso, marcos de fase e "Você sabia?" com "tentar de novo" imediato, tela de vitória com nota e estatísticas, título com menu; teste do João nas 3 fases e nos dois modos | I6, I7, D17, D33, R5 |
+| 8 | `docs/log-fase-2` | ✅ na Fase 2 e registro final | — |
