@@ -1,6 +1,6 @@
 import pytest
 
-from cupeco.dominio.fisica import Caixa, Corpo, Plataforma, mover
+from cupeco.dominio.fisica import Caixa, Corpo, Plataforma, apoios, mover
 
 GRAVIDADE = 1.0
 QUEDA_MAXIMA = 15.0
@@ -182,3 +182,11 @@ def test_mesmo_movimento_da_sempre_o_mesmo_resultado(vx):
             mover(corpo, [CHAO, PAREDE, TABUA], GRAVIDADE, QUEDA_MAXIMA)
         resultados.append((corpo.x, corpo.y, corpo.vx, corpo.vy, corpo.no_chao))
     assert resultados[0] == resultados[1]
+
+
+def test_apoios_sao_as_plataformas_sob_os_pes():
+    em_pe = Caixa(450, 370, 40, 80)  # base em 450, o topo da tabua
+    assert apoios(em_pe, [TABUA, CHAO]) == [TABUA]
+    assert apoios(em_pe.deslocada(0, -1), [TABUA, CHAO]) == []
+    assert apoios(Caixa(560, 370, 40, 80), [TABUA]) == [TABUA]  # metade do pé na tábua
+    assert apoios(Caixa(600, 370, 40, 80), [TABUA]) == []  # só encosta na quina
