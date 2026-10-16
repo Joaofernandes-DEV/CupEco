@@ -129,3 +129,23 @@ Modelo:
 - PR 3 do plano da Fase 1. Testes: 50 → 69 (sobreposição de caixas, queda livre e queda máxima, pouso exato, ficar parado no chão, chão fino em queda rápida, sair da beirada, primeira plataforma do caminho, paredes dos dois lados, chão que não é parede, teto, as quatro regras da plataforma atravessável e repetibilidade).
 - Sem mudança visível no jogo: a física aparece na arena de testes (PR 8).
 - Próximo: PR 4, `feat/jogador-movimento`.
+
+### 2026-10-16 13:22 — Movimento da Dara e comandos
+
+**Feito:**
+- PR #6 (física) mergeado com o CI verde.
+- `dominio/comandos.py`: `Botao` e `Controle`. A interface entrega só os botões segurados em cada passo; o domínio calcula "apertou" e "soltou" comparando com o passo anterior, e a direção (opostos se anulam) (D24).
+- `dominio/jogador.py` + `conteudo/jogador.toml`: a Dara corre, pula com altura variável (soltar o botão corta a subida), pula até 6 quadros depois de sair da beirada, guarda o pulo apertado até 6 quadros antes de pousar, agacha (caixa mais baixa, sem andar), trava no lugar para mirar, faz dash (velocidade fixa, sem gravidade, 1 no ar até pousar, espera entre dashes, **sem invencibilidade**, D14) e desce de plataforma atravessável com baixo + pulo (no chão sólido, baixo + pulo pula).
+- Mira em 8 direções: no ar, para onde se segura; travada, as 8 (no chão, "para baixo" vira a diagonal da frente); correndo + cima, a diagonal; parada + cima, reto para cima; agachada, para a frente.
+- Eventos do passo (`PULOU`, `POUSOU`, `DASH`, `DESCEU`) para a interface tocar sons e animações depois.
+- `fisica.apoios`: plataformas sob os pés, usada no dash (que não tem gravidade) e no "descer da tábua".
+- Parâmetros validados: positivos, agachada menor que em pé, corte do pulo entre 0 e 1 (D26).
+
+**Arquivos:** `src/cupeco/dominio/comandos.py`, `src/cupeco/dominio/jogador.py`, `src/cupeco/conteudo/jogador.toml`, `tests/test_comandos.py`, `tests/test_jogador.py` (novos), `src/cupeco/dominio/fisica.py`, `tests/test_fisica.py`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 4 do plano da Fase 1 (J1, D14, D24). Testes: 69 → 99.
+- Um teste revelou que, no último quadro do dash, o estado já aparecia como "no ar" embora a Dara ainda se movesse em dash; corrigido para a animação não adiantar um quadro.
+- Valores iniciais (pulo de ~200 px, corrida de 420 px/s, dash de 192 px) serão ajustados com o João na arena de testes (PR 8).
+- Limitação conhecida: levantar de agachada não confere teto baixo (as arenas não têm teto baixo).
+- Próximo: PR 5, `feat/armas-e-projeteis`.
