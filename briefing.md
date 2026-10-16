@@ -2,7 +2,7 @@
 
 Diagnóstico, decisões e roteiro da primeira versão. Este documento vem antes do código (Regra 1) e é atualizado quando uma decisão muda; cada mudança é registrada no [LOG.md](LOG.md).
 
-> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 em andamento.
+> **Situação:** concepção de game design fechada em 2026-10-16. Briefing revisado pelo João no mesmo dia, com as perguntas P1 a P6 respondidas (seção 8; só o prazo, P4, segue em aberto). Fase 0 (fundação) concluída em 2026-10-16 (PR #1); próxima: Fase 1 (núcleo e prancha de estilo).
 
 ---
 
@@ -294,7 +294,7 @@ Cada fase termina com o jogo funcionando na `main` (Regra 2). Até a Fase 2 tudo
 
 | Fase | Foco | Itens | Pronto quando… |
 |------|------|-------|----------------|
-| 0. Fundação | Repositório, esqueleto, lint, CI, documentos | D1 a D7, R13 | O jogo abre e fecha sem erro (`--fechar-em`); lint e CI passando; `main` protegida; CLAUDE.md, CONTRIBUTING, README, LOG e licenças criados |
+| 0. Fundação ✅ | Repositório, esqueleto, lint, CI, documentos | D1 a D7, R13 | O jogo abre e fecha sem erro (`--fechar-em`); lint e CI passando; `main` protegida; CLAUDE.md, CONTRIBUTING, README, LOG e licenças criados |
 | 1. Núcleo | Jogador e combate no domínio; prancha de estilo | D8, D12, D14, D15, D19, J1 a J5, J7 | Física, Dara, armas, Triagem, Medidor e dano modelados e testados sem janela (matriz da Triagem e replay); uma **arena de testes** com retângulos pode ser jogada no teclado e no controle; **prancha de estilo aprovada pelo João** |
 | 2. Primeira luta | Dom Obsolescêncio com formas simples | J6, J8, J13, J14, J15, D13, D17, R5 | As 3 fases do Dom podem ser jogadas do início ao fim nos dois modos, com padrões em dados, avisos testados, tela de derrota com progresso e "Você sabia?", e tela de vitória com nota |
 | 3. Arte e som | Pipeline e primeira luta com arte final | D10, D11, I1 a I9, I11, I12, R2, R3, R4, R9, R11, R12 | Geradores de arte funcionando e conferidos no CI; Dara e Dom Obsolescêncio com arte final; efeito de filme, HUD, sons e trilha; 60 FPS medidos; **demonstração pronta para a extensão** |
