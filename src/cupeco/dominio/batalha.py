@@ -7,7 +7,8 @@ reproduzi-lo quadro a quadro.
 
 A arena de testes tem um boneco de treino e um lançador de resíduos; uma luta de verdade
 tem um chefe (D28). Os tiros da Dara acertam qualquer alvo (boneco ou chefe); o chefe
-também machuca por contato.
+também machuca por contato. O modo da luta (Normal ou Simples, D31) é aplicado ao chefe ao
+começar; a arena de testes não muda com o modo.
 """
 
 from __future__ import annotations
@@ -25,6 +26,7 @@ from cupeco.dominio.dados import DadosInvalidos, converter, ler_toml
 from cupeco.dominio.fisica import Caixa, Plataforma
 from cupeco.dominio.jogador import EventoJogador, Jogador
 from cupeco.dominio.materiais import Material
+from cupeco.dominio.modos import Modo, aplicar_modo
 from cupeco.dominio.projeteis import Dono, Projetil
 
 # --- dados da arena ------------------------------------------------------------------
@@ -170,7 +172,8 @@ class Batalha:
 
     semente: int
     arena: Arena = field(default_factory=carregar_arena)
-    dados_chefe: DadosChefe | None = None
+    dados_chefe: DadosChefe | None = None  # como está nos dados, antes do modo
+    modo: Modo = Modo.NORMAL
 
     def __post_init__(self) -> None:
         self.sorteio = random.Random(self.semente)
@@ -179,7 +182,11 @@ class Batalha:
         dados_alvo, dados_lancador = self.arena.alvo, self.arena.lancador
         self.alvo = AlvoDeTreino(Caixa(*dados_alvo.caixa)) if dados_alvo else None
         self.lancador = Lancador(dados_lancador, self.sorteio) if dados_lancador else None
-        self.chefe = Chefe(self.dados_chefe, self.sorteio) if self.dados_chefe else None
+        self.chefe = (
+            Chefe(aplicar_modo(self.dados_chefe, self.modo), self.sorteio)
+            if self.dados_chefe
+            else None
+        )
         self.inimigos: list[Inimigo] = []
         self.alvos: list[AlvoDeTreino | Chefe] = [a for a in (self.alvo, self.chefe) if a]
         self.projeteis: list[Projetil] = []
@@ -311,18 +318,19 @@ VERSAO_REPLAY = 1
 
 @dataclass(frozen=True)
 class Replay:
-    """Uma luta gravada: a semente e os botões segurados em cada passo."""
+    """Uma luta gravada: a semente, o modo e os botões segurados em cada passo."""
 
     semente: int
     comandos: tuple[Comandos, ...]
     arena: str = "testes"
     chefe: str | None = None  # nome do arquivo em conteudo/chefes/, sem o .toml
+    modo: Modo = Modo.NORMAL
 
     @classmethod
     def da_batalha(
         cls, batalha: Batalha, arena: str = "testes", chefe: str | None = None
     ) -> Replay:
-        return cls(batalha.semente, tuple(batalha.gravacao), arena, chefe)
+        return cls(batalha.semente, tuple(batalha.gravacao), arena, chefe, batalha.modo)
 
     def para_json(self) -> str:
         return json.dumps(
@@ -330,6 +338,7 @@ class Replay:
                 "versao": VERSAO_REPLAY,
                 "arena": self.arena,
                 "chefe": self.chefe,
+                "modo": self.modo.value,
                 "semente": self.semente,
                 "comandos": [sorted(b.value for b in passo) for passo in self.comandos],
             },
@@ -346,11 +355,16 @@ class Replay:
         except ValueError as erro:
             raise DadosInvalidos(f"replay: botão desconhecido ({erro})") from erro
         chefe = dados.get("chefe")
-        return cls(int(dados["semente"]), comandos, str(dados["arena"]), chefe)
+        # Replays gravados antes dos modos não têm o campo: eram todos Normal.
+        try:
+            modo = Modo(dados.get("modo", Modo.NORMAL.value))
+        except ValueError as erro:
+            raise DadosInvalidos(f"replay: modo desconhecido ({erro})") from erro
+        return cls(int(dados["semente"]), comandos, str(dados["arena"]), chefe, modo)
 
     def reproduzir(self) -> tuple[Batalha, list[list[Evento]]]:
         """Roda a luta inteira de novo; devolve a batalha final e os eventos de cada passo."""
         dados_chefe = carregar_chefe(self.chefe) if self.chefe else None
-        batalha = Batalha(self.semente, carregar_arena(self.arena), dados_chefe)
+        batalha = Batalha(self.semente, carregar_arena(self.arena), dados_chefe, self.modo)
         eventos = [batalha.atualizar(passo) for passo in self.comandos]
         return batalha, eventos
