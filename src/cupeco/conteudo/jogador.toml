@@ -28,3 +28,6 @@ quadros_espera_dash = 8
 
 # Baixo + pulo sobre uma plataforma atravessável: passos ignorando as atravessáveis.
 quadros_descer = 10
+
+# Distância do centro da caixa até a boca do canhão, na direção da mira (de onde sai o tiro).
+distancia_boca = 52.0

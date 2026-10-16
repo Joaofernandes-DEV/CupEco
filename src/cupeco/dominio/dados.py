@@ -11,6 +11,7 @@ from __future__ import annotations
 import dataclasses
 import tomllib
 import typing
+from enum import Enum
 from importlib import resources
 from typing import Any, TypeVar
 
@@ -32,11 +33,17 @@ def ler_toml(nome: str) -> dict[str, Any]:
 def converter(valor: Any, tipo: type[T], onde: str) -> T:
     """Converte um valor lido do TOML para `tipo`, conferindo chaves e tipos.
 
-    Suporta dataclasses (aninhadas), `str`, `int`, `float` (aceita inteiro), `bool` e
-    tuplas de tamanho fixo ou variável (`tuple[int, int]`, `tuple[int, ...]`).
+    Suporta dataclasses (aninhadas), enumerações (pelo valor), `str`, `int`, `float` (aceita
+    inteiro), `bool` e tuplas de tamanho fixo ou variável (`tuple[int, int]`,
+    `tuple[int, ...]`).
     """
     if dataclasses.is_dataclass(tipo):
         return _converter_dataclass(valor, tipo, onde)
+    if isinstance(tipo, type) and issubclass(tipo, Enum):
+        validos = [membro.value for membro in tipo]
+        if valor not in validos:
+            raise DadosInvalidos(f"{onde}: {valor!r} não é um de {', '.join(map(str, validos))}")
+        return tipo(valor)
     if typing.get_origin(tipo) is tuple:
         return _converter_tupla(valor, tipo, onde)  # type: ignore[return-value]
     if tipo is bool:

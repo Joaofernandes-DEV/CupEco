@@ -149,3 +149,21 @@ Modelo:
 - Valores iniciais (pulo de ~200 px, corrida de 420 px/s, dash de 192 px) serão ajustados com o João na arena de testes (PR 8).
 - Limitação conhecida: levantar de agachada não confere teto baixo (as arenas não têm teto baixo).
 - Próximo: PR 5, `feat/armas-e-projeteis`.
+
+### 2026-10-16 13:26 — Armas e projéteis
+
+**Feito:**
+- PR #7 (movimento da Dara) mergeado com o CI verde.
+- `dominio/projeteis.py`: `Projetil` (centro, tamanho, velocidade, dano, tempo de vida, dono, material, perfura, EX), que anda em linha reta e some ao fim da vida ou fora da área; vetores das 8 direções escritos à mão (D23); caixa do projétil que acompanha a direção do voo.
+- `dominio/armas.py` + `conteudo/armas.toml`: **Rajada de Plástico** (vermelho; tiro reto e rápido, 7,5 por segundo) e **Leque de Papel** (azul; 3 tiros curtos abrindo 15°), cada uma com seu tiro EX (Garrafa Perfurante, que atravessa os alvos, e Bola de Papelão). O espalhamento é dado como rotações [cosseno, seno] nos dados, sem trigonometria no jogo. Validação: arma só de material reciclável, valores positivos e rotações de tamanho 1.
+- `Arsenal`: as duas armas equipadas, a ativa (a "lixeira ativa" da Triagem, D12), a troca e a cadência com o tiro segurado.
+- A Dara atira com o tiro segurado, da boca do canhão na direção da mira, troca de arma com um toque e não atira nem troca durante o dash. Novos eventos `TIROU` e `TROCOU_ARMA`.
+- O leitor de dados passa a converter enumerações pelo valor (ex.: `material = "papel"`), com erro que lista os valores aceitos.
+
+**Arquivos:** `src/cupeco/dominio/projeteis.py`, `src/cupeco/dominio/armas.py`, `src/cupeco/conteudo/armas.toml`, `tests/test_armas.py` (novos), `src/cupeco/dominio/dados.py`, `src/cupeco/dominio/jogador.py`, `src/cupeco/conteudo/jogador.toml`, `tests/test_dados.py`, `tests/test_jogador.py`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 5 do plano da Fase 1 (J2). Testes: 99 → 124.
+- O custo do tiro EX no Medidor e o botão de EX entram no PR 6 (Triagem e Medidor); aqui só a criação do projétil EX.
+- Valores iniciais de dano, cadência e alcance serão ajustados com o João na arena de testes (PR 8).
+- Próximo: PR 6, `feat/triagem-e-medidor`.

@@ -1,7 +1,8 @@
-"""A Dara: movimento, pulo, dash, agachar, travar e mira (J1, D14).
+"""A Dara: movimento, pulo, dash, agachar, travar, mira e tiro (J1, J2, D14).
 
 Tudo avança em passos fixos (D8) a partir dos botões segurados (D24); os valores vêm de
-`conteudo/jogador.toml` (D26). Tiro, Triagem e dano entram nos próximos PRs da Fase 1.
+`conteudo/jogador.toml` e `conteudo/armas.toml` (D26). Triagem, Medidor, tiro EX e dano
+entram no próximo PR da Fase 1.
 """
 
 from __future__ import annotations
@@ -11,9 +12,11 @@ from dataclasses import dataclass, fields
 from enum import Enum
 from functools import cache
 
+from cupeco.dominio.armas import Arsenal, boca_do_canhao
 from cupeco.dominio.comandos import Botao, Comandos, Controle, Direcao
 from cupeco.dominio.dados import DadosInvalidos, converter, ler_toml
 from cupeco.dominio.fisica import Corpo, Plataforma, apoios, mover
+from cupeco.dominio.projeteis import Projetil
 
 MUITO_TEMPO = 1_000_000  # "faz muito tempo" para os contadores de quadros
 
@@ -34,6 +37,8 @@ class EventoJogador(Enum):
     POUSOU = "pousou"
     DASH = "dash"
     DESCEU = "desceu"
+    TIROU = "tirou"
+    TROCOU_ARMA = "trocou_arma"
 
 
 @dataclass(frozen=True)
@@ -52,6 +57,7 @@ class ParametrosJogador:
     quadros_dash: int
     quadros_espera_dash: int
     quadros_descer: int
+    distancia_boca: float
 
 
 def validar_parametros(p: ParametrosJogador) -> ParametrosJogador:
@@ -74,8 +80,16 @@ def carregar_parametros_jogador() -> ParametrosJogador:
 class Jogador:
     """A Dara. `x` é a borda esquerda da caixa e `base` a altura dos pés."""
 
-    def __init__(self, x: float, base: float, parametros: ParametrosJogador | None = None):
+    def __init__(
+        self,
+        x: float,
+        base: float,
+        parametros: ParametrosJogador | None = None,
+        arsenal: Arsenal | None = None,
+    ):
         self.p = parametros or carregar_parametros_jogador()
+        self.arsenal = arsenal or Arsenal.padrao()
+        self.novos_projeteis: list[Projetil] = []  # disparados no último passo
         self.corpo = Corpo(x, base - self.p.altura, self.p.largura, self.p.altura)
         self.controle = Controle()
         self.virada = 1  # 1 = olhando para a direita, -1 = para a esquerda
@@ -152,6 +166,20 @@ class Jogador:
             self._desde_o_chao += 1
 
         self._atualizar_estado_e_mira(travada, em_dash)
+        eventos.extend(self._atirar(em_dash))
+        return eventos
+
+    def _atirar(self, em_dash: bool) -> list[EventoJogador]:
+        """Troca de arma e tiro contínuo; nada disso durante o dash, como no gênero."""
+        eventos = []
+        if self.controle.apertou(Botao.TROCAR) and not em_dash:
+            self.arsenal.trocar()
+            eventos.append(EventoJogador.TROCOU_ARMA)
+        origem = boca_do_canhao(self.corpo.caixa, self.mira, self.p.distancia_boca)
+        atirando = self.controle.segurando(Botao.TIRO) and not em_dash
+        self.novos_projeteis = self.arsenal.atualizar(atirando, origem, self.mira)
+        if self.novos_projeteis:
+            eventos.append(EventoJogador.TIROU)
         return eventos
 
     def _iniciar_dash(self) -> None:
