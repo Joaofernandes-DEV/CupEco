@@ -7,7 +7,7 @@ trigonometria (D23).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 from cupeco.dominio.comandos import Direcao
@@ -59,6 +59,8 @@ class Projetil:
     material: Material | None = None
     perfura: bool = False
     ex: bool = False
+    # Nomes dos alvos já atingidos: um tiro perfurante acerta cada alvo uma vez só.
+    alvos_atingidos: set[str] = field(default_factory=set)
 
     @property
     def caixa(self) -> Caixa:
