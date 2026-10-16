@@ -7,8 +7,10 @@ reproduzi-lo quadro a quadro.
 
 A arena de testes tem um boneco de treino e um lançador de resíduos; uma luta de verdade
 tem um chefe (D28). Os tiros da Dara acertam qualquer alvo (boneco ou chefe); o chefe
-também machuca por contato. O modo da luta (Normal ou Simples, D31) é aplicado ao chefe ao
-começar; a arena de testes não muda com o modo.
+também machuca por contato, e os tiros explosivos viram explosões ao chegar ao chão. A
+barra de um chefe (a "Atualização Obrigatória" do Dom) também é alvo dos tiros. O modo da
+luta (Normal ou Simples, D31) é aplicado ao chefe ao começar; a arena de testes não muda
+com o modo.
 """
 
 from __future__ import annotations
@@ -19,7 +21,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from functools import cache
 
-from cupeco.dominio.ataques import Inimigo
+from cupeco.dominio.ataques import Explosao, Inimigo, explodir
 from cupeco.dominio.chefe import Chefe, DadosChefe, EventoChefe, carregar_chefe
 from cupeco.dominio.comandos import Botao, Comandos
 from cupeco.dominio.dados import DadosInvalidos, converter, ler_toml
@@ -156,6 +158,8 @@ class EventoBatalha(Enum):
     SUPER_ACERTOU = "super_acertou"
     RESIDUO_LANCADO = "residuo_lancado"
     INIMIGO_DESTRUIDO = "inimigo_destruido"
+    EXPLODIU = "explodiu"  # um tiro explosivo chegou ao chão
+    BARRA_DESTRUIDA = "barra_destruida"
 
 
 class Resultado(Enum):
@@ -188,6 +192,7 @@ class Batalha:
             else None
         )
         self.inimigos: list[Inimigo] = []
+        self.explosoes: list[Explosao] = []
         self.alvos: list[AlvoDeTreino | Chefe] = [a for a in (self.alvo, self.chefe) if a]
         self.projeteis: list[Projetil] = []
         self.quadro = 0
@@ -253,20 +258,44 @@ class Batalha:
 
         for projetil in self.projeteis:
             projetil.atualizar()
+        eventos.extend(self._explosoes())
         eventos.extend(self._colisoes())
         area = self.arena.area_dos_projeteis
         self.projeteis = [p for p in self.projeteis if p.vivo and not p.fora_da_area(area)]
         self.quadro += 1
         return eventos
 
+    def _explosoes(self) -> list[Evento]:
+        """Tiros explosivos que chegaram ao chão viram explosões; as explosões machucam."""
+        eventos: list[Evento] = []
+        restantes = []
+        for projetil in self.projeteis:
+            explosao = explodir(projetil)
+            if explosao is None:
+                restantes.append(projetil)
+            else:
+                self.explosoes.append(explosao)
+                eventos.append(EventoBatalha.EXPLODIU)
+        self.projeteis = restantes
+        ativas = []
+        for explosao in self.explosoes:
+            if explosao.caixa.sobrepoe(self.jogador.corpo.caixa):
+                eventos.extend(self.jogador.tocar_perigo())
+            explosao.restante -= 1
+            if explosao.restante > 0:
+                ativas.append(explosao)
+        self.explosoes = ativas
+        return eventos
+
     def _colisoes(self) -> list[Evento]:
         eventos: list[Evento] = []
         jogador = self.jogador
+        barra = self.chefe.barra if self.chefe is not None else None
         restantes = []
         for projetil in self.projeteis:
             remover = False
             if projetil.dono is Dono.JOGADOR:
-                for alvo in [*self.alvos, *self.inimigos]:
+                for alvo in [*self.alvos, *self.inimigos, *([barra] if barra else [])]:
                     if alvo.nome in projetil.alvos_atingidos:
                         continue
                     if not projetil.caixa.sobrepoe(alvo.caixa):
@@ -290,6 +319,8 @@ class Batalha:
         vivos = [inimigo for inimigo in self.inimigos if inimigo.vida > 0]
         eventos.extend([EventoBatalha.INIMIGO_DESTRUIDO] * (len(self.inimigos) - len(vivos)))
         self.inimigos = vivos
+        if barra is not None and not barra.vulneravel:
+            eventos.append(EventoBatalha.BARRA_DESTRUIDA)
         return eventos
 
     def retrato(self) -> tuple:
@@ -308,6 +339,10 @@ class Batalha:
             (self.chefe.vida, self.chefe.fase, self.chefe.x, self.chefe.y) if self.chefe else None,
             tuple((i.nome, i.x, i.y, i.vida) for i in self.inimigos),
             tuple((p.x, p.y, p.dono, p.material) for p in self.projeteis),
+            tuple((e.caixa, e.restante) for e in self.explosoes),
+            (self.chefe.barra.nome, self.chefe.barra.vida)
+            if self.chefe and self.chefe.barra
+            else None,
         )
 
 
