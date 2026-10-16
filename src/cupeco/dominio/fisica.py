@@ -160,6 +160,13 @@ def _mover_y(corpo: Corpo, plataformas: Iterable[Plataforma], descer: bool) -> t
     return (False, False)
 
 
+def apoios(caixa: Caixa, plataformas: Iterable[Plataforma]) -> list[Plataforma]:
+    """Plataformas em que a caixa está pisando: base encostada no topo, com faixa em comum."""
+    return [
+        p for p in plataformas if p.caixa.topo == caixa.base and _cruza_horizontal(caixa, p.caixa)
+    ]
+
+
 def mover(
     corpo: Corpo,
     plataformas: Iterable[Plataforma],
