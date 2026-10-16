@@ -1,4 +1,4 @@
-"""Tela de título provisória da Fase 0: mostra o nome do jogo e fecha com Esc."""
+"""Tela de título provisória: nome do jogo; Enter leva à arena de testes e Esc fecha."""
 
 import pygame
 
@@ -21,6 +21,7 @@ class EstadoTitulo(Estado):
         self._linhas = [
             (fonte_titulo.render(TITULO.upper(), True, Paleta.TEXTO), 200),
             (fonte_texto.render("Dara contra os Rejeitos de Aterrópolis", True, Paleta.TEXTO), 330),
+            (fonte_dica.render("Enter (ou A): arena de testes", True, Paleta.TEXTO), 560),
             (fonte_dica.render("Esc: sair", True, Paleta.APAGADO), 600),
             (fonte_dica.render(f"v{__version__}", True, Paleta.APAGADO), 640),
         ]
@@ -28,6 +29,16 @@ class EstadoTitulo(Estado):
     def tratar_evento(self, evento: pygame.Event) -> None:
         if evento.type == pygame.KEYDOWN and evento.key == pygame.K_ESCAPE:
             self.jogo.encerrar()
+        entrar = (
+            evento.type == pygame.KEYDOWN and evento.key in (pygame.K_RETURN, pygame.K_z)
+        ) or (
+            evento.type == pygame.CONTROLLERBUTTONDOWN
+            and evento.button == pygame.CONTROLLER_BUTTON_A
+        )
+        if entrar:
+            from cupeco.estados.arena import EstadoArena
+
+            self.jogo.trocar_estado(EstadoArena(self.jogo))
 
     def desenhar(self, tela: pygame.Surface) -> None:
         tela.fill(Paleta.FUNDO)
