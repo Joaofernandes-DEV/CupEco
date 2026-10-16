@@ -405,3 +405,38 @@ Modelo:
 - A contagem de frases é uma regra simples (ponto, exclamação ou reticências seguidos de espaço); abreviações como "Art. 3" contam como fim de frase. Se atrapalhar algum fato, a regra é ajustada.
 - Sem mudança visível no jogo: a mensagem aparece nas telas de derrota e de vitória (PR 7). Nada para abrir e testar à mão neste PR.
 - Próximo: PR 7, `feat/telas-da-luta`, com o teste do João.
+
+### 2026-10-16 18:51 — Telas da luta contra o Dom Obsolescêncio
+
+**Feito:**
+- PR #19 (mecanismo do "Você sabia?") mergeado com o CI verde.
+- **Título com menu:** "Lutar contra o Dom Obsolescêncio", "Arena de testes" e "Sair", navegados com setas e Enter (ou direcional e A). A opção marcada leva setas, além da cor.
+- **Escolha de modo** (J13): Normal ou Simples, com uma descrição de cada; Esc (ou B) volta.
+- **Tela da luta** (`estados/luta.py`), com formas simples:
+  - um desenho do Dom por fase (TVs empilhadas, núcleo redondo e placa-mãe), com o nome do chefe, a fase e o modo no alto. **A vida do chefe não aparece (D33)**: a troca de fase é anunciada numa faixa;
+  - avisos visuais fixos, sem piscar (I5, R4): "!" sobre o chefe durante o aviso, contornos tracejados nas zonas, na área da barra e nas explosões, e setas e marcas onde a chuva vai cair;
+  - zonas elétricas, explosões das baterias, celulares, a barra "Atualização Obrigatória" enchendo e a faixa "Atualização instalada!" quando ela cura o Dom;
+  - pausa (continuar, reiniciar, sair) e os avisos educativos da Triagem.
+- **Derrota** (I6): barra de progresso com os marcos das fases, a fase alcançada, a mensagem ("Dica" enquanto não há fatos) e "tentar de novo" na hora, além de trocar de modo e sair.
+- **Vitória** (I7): a nota com o modo ao lado, os pontos de cada critério, as estatísticas (tempo, vida, triagens certas, de outra cor e proibidas, Supers) e a mensagem.
+- As telas de resultado só aceitam o botão depois de 1/3 de segundo, para quem terminou a luta apertando não pular a tela sem querer.
+- O sorteio das mensagens é da sessão inteira (no `Jogo`), então não repete entre tentativas (J15).
+- Cada tentativa usa uma semente nova (a da luta mais o número da tentativa): os ataques variam e a luta continua reproduzível.
+- `--luta ID`, `--modo` e `--depurar` no `python -m cupeco`. As teclas de depuração da luta (F1: caixas e vida do chefe; F2: pular fase) só funcionam com `--depurar`.
+- O desenho comum (Dara, tiros, resíduos, HUD, faixas) saiu da arena para `ui/desenho.py`, e os menus para `ui/menu.py`. A arena continua igual na tela.
+- A Dara invencível passa a piscar 3 vezes por segundo, em vez de cerca de 7, nas duas telas (R4).
+- O aviso da Triagem proibida no laranja passa a falar em "Pilhas e baterias são resíduos perigosos: não se separam, vão para a coleta especial!".
+- Cada chefe diz a sua arena nos dados (`arena = "dom"` no Dom).
+- README: situação e como abrir a luta.
+
+**Arquivos:** `src/cupeco/ui/desenho.py`, `src/cupeco/ui/menu.py`, `src/cupeco/estados/luta.py`, `src/cupeco/estados/resultado.py`, `src/cupeco/estados/escolha_modo.py`, `tests/test_luta.py` (novos), `src/cupeco/estados/arena.py`, `src/cupeco/estados/titulo.py`, `src/cupeco/jogo.py`, `src/cupeco/__main__.py`, `src/cupeco/dominio/chefe.py`, `src/cupeco/conteudo/chefes/dom_obsolescencio.toml`, `tests/test_arena.py`, `README.md`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 7 do plano da Fase 2 (I5, I6, I7, J13, J14, J15, D17, D33, R4, R5). Testes: 409 → 433.
+- Decisões do João neste PR: semente nova a cada tentativa, F1 e F2 só com `--depurar`, a Dara piscando 3 vezes por segundo e o aviso falando em pilhas e baterias.
+- Conferido pelo Claude em capturas de todas as telas e de cada ataque. Corrigido antes do teste do João: a opção marcada em amarelo ficava ilegível no fundo claro, a descrição do Simples quebrava mal, a faixa de fase cobria o chefe da fase 3 e os pedaços da chuva que não explodem apareciam afundando no chão.
+- **Testado à mão pelo João:** jogou as 3 fases nos dois modos e aprovou.
+- Não conferido: controle de videogame real (segue pendente desde a Fase 1); aviso sonoro dos ataques (os sons chegam na Fase 3).
+- Ficou de fora do menu do título a tela de opções: as opções de acessibilidade (I9) chegam na Fase 3.
+- Os textos das telas ainda estão no código; vão para `pt_BR/textos.toml` quando a interface final chegar.
+- Próximo: PR 8, `docs/log-fase-2` (✅ na Fase 2).
