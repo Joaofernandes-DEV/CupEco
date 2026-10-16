@@ -1,0 +1,30 @@
+# Física e movimento da Dara (J1, D14, D26).
+#
+# Unidades: pixels lógicos (tela de 1280×720) e passos de simulação (1/60 s, D8).
+# Velocidades em pixels por passo. Valores iniciais, ajustados com o João na arena de testes.
+
+# Caixa de colisão (menor que o desenho, como é comum no gênero).
+largura = 56.0
+altura = 130.0
+altura_agachada = 78.0
+
+velocidade_corrida = 7.0
+
+# Gravidade e pulo: altura máxima ≈ velocidade_pulo² / (2 × gravidade) ≈ 200 px.
+gravidade = 0.9
+queda_maxima = 16.0
+velocidade_pulo = 19.0
+# Soltar o pulo enquanto sobe multiplica a velocidade de subida por este valor (pulo curto).
+corte_pulo = 0.4
+
+# Tolerâncias: pular logo depois de sair da beirada e apertar pulo um pouco antes de pousar.
+quadros_tolerancia_beirada = 6
+quadros_pulo_guardado = 6
+
+# Dash: sem invencibilidade (D14), sem gravidade enquanto dura, 1 no ar até pousar.
+velocidade_dash = 16.0
+quadros_dash = 12
+quadros_espera_dash = 8
+
+# Baixo + pulo sobre uma plataforma atravessável: passos ignorando as atravessáveis.
+quadros_descer = 10
