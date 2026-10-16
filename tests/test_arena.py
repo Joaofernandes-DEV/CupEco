@@ -80,8 +80,9 @@ def test_esc_e_start_pausam():
 # --- título e arena ------------------------------------------------------------------
 
 
-def test_enter_no_titulo_abre_a_arena(jogo):
+def test_arena_de_testes_no_menu_do_titulo(jogo):
     jogo.trocar_estado(EstadoTitulo(jogo))
+    jogo.estado.tratar_evento(tecla(pygame.K_DOWN))  # a primeira opção é a luta
     jogo.estado.tratar_evento(tecla(pygame.K_RETURN))
     assert isinstance(jogo.estado, EstadoArena)
 
