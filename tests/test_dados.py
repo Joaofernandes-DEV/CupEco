@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 
 import pytest
 
@@ -67,3 +68,22 @@ def test_falta_chave_obrigatoria_no_topo():
 
 def test_le_toml_do_pacote_de_conteudo():
     assert "fonte" in ler_toml("materiais.toml")
+
+
+class Cor(Enum):
+    AZUL = "azul"
+    VERDE = "verde"
+
+
+@dataclass(frozen=True)
+class ComCor:
+    cor: Cor
+
+
+def test_converte_enumeracao_pelo_valor():
+    assert converter({"cor": "verde"}, ComCor, "x") == ComCor(Cor.VERDE)
+
+
+def test_valor_fora_da_enumeracao_e_erro():
+    with pytest.raises(DadosInvalidos, match="x.cor: 'roxo' não é um de azul, verde"):
+        converter({"cor": "roxo"}, ComCor, "x")
