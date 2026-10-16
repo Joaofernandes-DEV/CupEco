@@ -14,6 +14,7 @@ nome = "Dom Obsolescêncio"
 vida = 2000
 quadros_transicao = 60
 dano_por_contato = true
+arena = "dom"
 
 # --- Fase 1: Torre de Tubos -----------------------------------------------------------
 # Uma pilha de TVs de tubo parada à direita.
