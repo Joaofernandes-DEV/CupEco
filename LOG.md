@@ -64,3 +64,16 @@ Modelo:
 - Fecha a Fase 0 (Regras 2 e 7). Testes: 10 → 10 (só documentação).
 - Ao mudar a matriz do CI, atualizar a lista de checks exigidos na proteção da `main`.
 - Próximo: Fase 1 (núcleo: física, Dara, armas, Triagem, Medidor e dano no domínio, arena de testes e prancha de estilo, D19).
+
+### 2026-10-16 12:55 — Plano da Fase 1
+
+**Feito:**
+- Plano da Fase 1 aprovado pelo João e registrado no briefing (seção 10.1): 10 PRs, da prancha de estilo à arena de testes.
+- Novas decisões técnicas: números e sorteio determinísticos (D23), comandos como botões segurados e replays (D24), Medidor em pontos inteiros (D25), valores de jogo em TOML com validação estrita (D26) e Pillow fixo no extra `[ferramentas]` (D27).
+- Situação do briefing atualizada: Fase 1 em andamento.
+
+**Arquivos:** `briefing.md`, `LOG.md`.
+
+**Motivo / observações:**
+- Regra 1 aplicada à Fase 1: o plano vem antes do código. Testes: 10 → 10 (só documentação).
+- Próximo: PR 1, `feat/prancha-de-estilo` (D19).
