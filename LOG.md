@@ -381,3 +381,27 @@ Modelo:
 - Um teste exige que todo chefe de `conteudo/chefes/` tenha as suas faixas de tempo na nota.
 - Sem mudança visível no jogo: a nota aparece na tela de vitória (PR 7). Nada para abrir e testar à mão neste PR.
 - Próximo: PR 6, `feat/voce-sabia`.
+
+### 2026-10-16 18:29 — Mecanismo do "Você sabia?"
+
+**Feito:**
+- PR #18 (nota da luta) mergeado com o CI verde.
+- `conteudo/pt_BR/fatos.toml` + `dominio/fatos.py` (J15, D35):
+  - **Fatos:** cada um ligado a um chefe, com a fonte obrigatória (título, autor, ano, tipo, data da consulta e link opcional). Fato sem fonte nem carrega. O tipo só aceita os da C1 (legislação, órgão oficial, artigo revisado e instituição de pesquisa); não existe a opção "livro".
+  - **Dicas:** 5 dicas sobre as regras do jogo, sem afirmar nada sobre o mundo real, para os chefes ainda sem fatos.
+  - **Validação:** no máximo 2 frases (C7) e 220 caracteres por texto, `id` sem repetição, chefe que existe, data da consulta em AAAA-MM-DD e ano que não passa da consulta.
+  - **Sorteio por chefe, sem repetição (J15):** embaralha com semente até esgotar; a rodada nova não começa pelo último que saiu. Sem fatos para o chefe, sai uma dica, também sem repetir.
+  - `Mensagem` diz se é fato (com fonte, "Você sabia?") ou dica, para a tela do PR 7. Os fatos já vistos ficam guardados para o save e o Caderno (J16, J18).
+- `chefe.listar_chefes()`: os chefes de `conteudo/chefes/`, usados para conferir o chefe de cada fato.
+- `conteudo/pt_BR/*.toml` entra no pacote (`pyproject.toml`).
+- O arquivo de fatos começa **sem nenhum fato**, com um modelo comentado de como adicionar um.
+
+**Arquivos:** `src/cupeco/conteudo/pt_BR/fatos.toml`, `src/cupeco/dominio/fatos.py`, `tests/test_fatos.py` (novos), `src/cupeco/dominio/chefe.py`, `pyproject.toml`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 6 do plano da Fase 2 (J15, D35, C1, C7). Testes: 362 → 409.
+- Decisões do João neste PR: as 5 dicas neutras, os tipos de fonte da C1 e o limite de 220 caracteres.
+- Nenhum fato foi pesquisado nem escrito pelo Claude (D35): os fatos de exemplo dos testes são fictícios ("Fato de teste 1") e não vão para o jogo. O teste de fonte completa e de texto curto passa a valer sozinho quando o João ou o grupo enviarem os fatos.
+- A contagem de frases é uma regra simples (ponto, exclamação ou reticências seguidos de espaço); abreviações como "Art. 3" contam como fim de frase. Se atrapalhar algum fato, a regra é ajustada.
+- Sem mudança visível no jogo: a mensagem aparece nas telas de derrota e de vitória (PR 7). Nada para abrir e testar à mão neste PR.
+- Próximo: PR 7, `feat/telas-da-luta`, com o teste do João.
