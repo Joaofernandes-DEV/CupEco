@@ -331,3 +331,31 @@ Modelo:
 - Sem mudança visível no jogo: a escolha de modo e o `--modo simples` entram com a tela da luta (PR 7). A arena de testes não muda com o modo. Nada para abrir e testar à mão neste PR.
 - Para o PR 4: o `package-data` do `pyproject.toml` hoje inclui só `conteudo/*.toml`; os arquivos de `conteudo/chefes/` precisam entrar nele.
 - Próximo: PR 4, `feat/dom-obsolescencio`.
+
+### 2026-10-16 17:51 — Dom Obsolescêncio em dados
+
+**Feito:**
+- PR #16 (modos Normal e Simples) mergeado com o CI verde.
+- `conteudo/chefes/dom_obsolescencio.toml` (J8): 2000 de vida no Normal (1400 no Simples), fases em 100%, 66% e 33%, transição de 1 segundo e dano por contato.
+  - **Torre de Tubos:** Raios de Pixel (rajada em três alturas: pular, agachar ou ficar no chão), Chicote de Cabo (zona baixa e curta no chão) e Coroa de Antenas (chuva de pedaços amarelos de metal, separáveis).
+  - **Enxame Descontinuado:** Celulares (inimigos destrutíveis, D34), Baterias Estufadas (chuva laranja de resíduo perigoso, não separável, que explode ao chegar ao chão) e Manuais de Papel (tiros mirados de papel, separáveis).
+  - **Placa-Mãe:** Trilhas da Esquerda e da Direita (zonas em metade do chão; as tábuas são o lugar seguro), Faíscas (leque para baixo) e Atualização Obrigatória (barra que enche em 4 segundos e, se não for destruída, cura o Dom em 10% da vida máxima).
+- Duas peças novas de ataque (D29):
+  - **Explosão:** um tiro da chuva com `explode_em` e `explosao` vira uma área que machuca por alguns quadros ao chegar ao chão. O aviso tem duas camadas: a marca da queda durante o aviso do ataque e a própria bateria caindo.
+  - **Barra:** aparece na etapa ativa (o aviso mostra onde), enche até o fim da etapa e cai com tiros, que enchem o Medidor. Se encher, o chefe se cura, mas nunca acima do começo da fase atual: a cura não faz o chefe voltar de fase (`Chefe.curar`).
+- Batalha: explosões, a barra como alvo dos tiros e os eventos `EXPLODIU`, `BARRA_DESTRUIDA` e `CUROU`. O retrato da luta inclui as explosões e a barra.
+- Arena `dom` em `arenas.toml` (o mesmo chão e as tábuas da arena de testes, sem boneco nem lançador); `conteudo/chefes/*.toml` entra no pacote (`pyproject.toml`).
+- Modos: a barra, como a zona, não tem projéteis para reduzir.
+- Briefing: a coroa da fase 1 passa a ser de antenas de metal, na J8 e na nova decisão D36.
+
+**Arquivos:** `src/cupeco/conteudo/chefes/dom_obsolescencio.toml`, `tests/test_dom.py` (novos), `src/cupeco/conteudo/arenas.toml`, `src/cupeco/dominio/ataques.py`, `src/cupeco/dominio/projeteis.py`, `src/cupeco/dominio/chefe.py`, `src/cupeco/dominio/batalha.py`, `src/cupeco/dominio/modos.py`, `pyproject.toml`, `tests/test_ataques.py`, `tests/test_modos.py`, `briefing.md`, `LOG.md`.
+
+**Motivo / observações:**
+- PR 4 do plano da Fase 2 (J8, D29, D34, D36). Testes: 294 → 325.
+- Decisão do João neste PR: a coroa de carregadores vira coroa de antenas de metal (D36). Carregador é lixo eletrônico; com projéteis amarelos separáveis, o jogo ensinaria a separação errada (C1, R6).
+- O teste do aviso mínimo dos modos (J6) passou a valer para o Dom sozinho, e pegou um caso: a barra não machuca, então o teste passou a contar o aparecimento dela como o começo do ataque.
+- Outros testes: cada fase usa todos os seus ataques até a derrota, nos dois modos; uma luta inteira em cada modo chega à vitória passando pelas 3 fases; o replay contra o Dom se repete quadro a quadro nos dois modos; explosão e barra testadas sozinhas e na batalha.
+- Para confirmar com o João: os Manuais de Papel (fase 2) e as Faíscas (fase 3) foram acrescentados por mim para dar ritmo às fases e chances de Triagem; não estavam no plano.
+- Valores iniciais (vida, velocidades, tempos), ajustados quando o João jogar a luta no PR 7.
+- Sem mudança visível no jogo: o Dom aparece na tela no PR 7. Nada para abrir e testar à mão neste PR.
+- Próximo: PR 5, `feat/nota`.
