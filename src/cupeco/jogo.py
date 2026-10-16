@@ -8,6 +8,7 @@ import pygame
 
 from cupeco.config import ALTURA_TELA, FPS, LARGURA_TELA, TITULO
 from cupeco.passo_fixo import PassoFixo
+from cupeco.ui.entrada import Entrada
 
 if TYPE_CHECKING:
     from cupeco.estados.base import Estado
@@ -23,6 +24,7 @@ class Jogo:
         self.tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA), pygame.SCALED)
         self.relogio = pygame.time.Clock()
         self.passo_fixo = PassoFixo()
+        self.entrada = Entrada()
         self.estado: Estado | None = None
         self.rodando = False
 
@@ -39,6 +41,7 @@ class Jogo:
             while self.rodando:
                 passos = self.passo_fixo.avancar(self.relogio.tick(FPS))
                 for evento in pygame.event.get():
+                    self.entrada.tratar_evento(evento)
                     if evento.type == pygame.QUIT:
                         self.encerrar()
                     elif self.estado is not None:
