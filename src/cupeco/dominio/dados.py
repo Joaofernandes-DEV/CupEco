@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import dataclasses
 import tomllib
+import types
 import typing
 from enum import Enum
 from importlib import resources
@@ -34,9 +35,13 @@ def converter(valor: Any, tipo: type[T], onde: str) -> T:
     """Converte um valor lido do TOML para `tipo`, conferindo chaves e tipos.
 
     Suporta dataclasses (aninhadas), enumerações (pelo valor), `str`, `int`, `float` (aceita
-    inteiro), `bool` e tuplas de tamanho fixo ou variável (`tuple[int, int]`,
-    `tuple[int, ...]`).
+    inteiro), `bool`, tuplas de tamanho fixo ou variável (`tuple[int, int]`,
+    `tuple[int, ...]`) e campos opcionais (`X | None`): o TOML não tem "nulo", então o campo
+    opcional ausente fica com o valor padrão da dataclass e, se presente, é convertido para X.
     """
+    opcional = _tipo_de_opcional(tipo)
+    if opcional is not None:
+        return converter(valor, opcional, onde)
     if dataclasses.is_dataclass(tipo):
         return _converter_dataclass(valor, tipo, onde)
     if isinstance(tipo, type) and issubclass(tipo, Enum):
@@ -63,6 +68,16 @@ def converter(valor: Any, tipo: type[T], onde: str) -> T:
             raise DadosInvalidos(f"{onde}: esperava um texto, veio {valor!r}")
         return valor  # type: ignore[return-value]
     raise TypeError(f"tipo não suportado nos dados: {tipo!r}")
+
+
+def _tipo_de_opcional(tipo: Any) -> Any:
+    """Para `X | None`, devolve X; para qualquer outro tipo, None."""
+    if typing.get_origin(tipo) not in (typing.Union, types.UnionType):
+        return None
+    argumentos = [a for a in typing.get_args(tipo) if a is not type(None)]
+    if len(argumentos) != 1:
+        raise TypeError(f"só são suportadas uniões do tipo X | None: {tipo!r}")
+    return argumentos[0]
 
 
 def _converter_dataclass(valor: Any, tipo: Any, onde: str) -> Any:
