@@ -87,3 +87,23 @@ def test_converte_enumeracao_pelo_valor():
 def test_valor_fora_da_enumeracao_e_erro():
     with pytest.raises(DadosInvalidos, match="x.cor: 'roxo' não é um de azul, verde"):
         converter({"cor": "roxo"}, ComCor, "x")
+
+
+@dataclass(frozen=True)
+class ComOpcional:
+    nome: str
+    pulo: Pulo | None = None
+
+
+def test_campo_opcional_ausente_fica_com_o_padrao():
+    assert converter({"nome": "a"}, ComOpcional, "x") == ComOpcional("a", None)
+
+
+def test_campo_opcional_presente_e_convertido():
+    valor = {"nome": "a", "pulo": {"altura": 10, "quadros": 3}}
+    assert converter(valor, ComOpcional, "x") == ComOpcional("a", Pulo(10.0, 3))
+
+
+def test_campo_opcional_presente_tambem_e_validado():
+    with pytest.raises(DadosInvalidos, match="x.pulo: falta a chave quadros"):
+        converter({"nome": "a", "pulo": {"altura": 10}}, ComOpcional, "x")
