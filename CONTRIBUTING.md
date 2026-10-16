@@ -13,7 +13,7 @@ python -m venv .venv
 Ative o ambiente virtual (Windows: `.venv\Scripts\activate`; Linux/macOS: `source .venv/bin/activate`) e instale:
 
 ```bash
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,ferramentas]"
 ```
 
 > Se o caminho da pasta tiver espaços, use aspas nos comandos. Prefira `python -m pytest` e `python -m ruff`, que funcionam mesmo com acentos no caminho.

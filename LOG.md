@@ -77,3 +77,22 @@ Modelo:
 **Motivo / observações:**
 - Regra 1 aplicada à Fase 1: o plano vem antes do código. Testes: 10 → 10 (só documentação).
 - Próximo: PR 1, `feat/prancha-de-estilo` (D19).
+
+### 2026-10-16 13:06 — Prancha de estilo (versão 1, para aprovação)
+
+**Feito:**
+- Biblioteca de traço em `ferramentas/arte/traco.py`: curvas suaves que passam pelas âncoras, traço de pincel com pontas finas, membros de "mangueira" sem cotovelo, formas com contorno, olhos *pie-cut* e a "linha viva" (tremor com semente). Desenho em resolução 4× e redução no fim; sem seno nem cosseno (D23).
+- Dara em 3 poses (parada, correndo, pulo com tiro na diagonal), com esqueleto de poses, boné da cooperativa, macacão, luvas de trabalho amarelas e botas; Canhão de Triagem com a faixa da cor ativa (D12).
+- Os 6 resíduos com cor da CONAMA, silhueta e marca: halo liso nos recicláveis, halo serrilhado com selo de proibido ou de perigo no rejeito e no perigoso (I4, D15).
+- Pedaço de Aterrópolis (prédios "de borracha", chaminés com fumaça, aterro, rua e poste) com efeito de filme: tom desbotado, grão e vinheta (I2).
+- `letreiro.py`: acentos do português desenhados sobre a fonte embutida do Pillow, que só tem ASCII. A fonte do jogo continua para a Fase 3 (I12).
+- `python -m ferramentas.gerar_prancha` gera `docs/prancha-estilo.png`. Pillow 12.3.0 fixo no extra `[ferramentas]` (D27); o CI e as instruções de instalação passam a usar `.[dev,ferramentas]`; o pytest ganha a raiz no caminho de importação.
+
+**Arquivos:** `pyproject.toml`, `.github/workflows/ci.yml`, `ferramentas/__init__.py`, `ferramentas/arte/__init__.py`, `ferramentas/arte/traco.py`, `ferramentas/arte/paleta.py`, `ferramentas/arte/efeitos.py`, `ferramentas/arte/letreiro.py`, `ferramentas/arte/residuos.py`, `ferramentas/arte/personagens/__init__.py`, `ferramentas/arte/personagens/canhao.py`, `ferramentas/arte/personagens/dara.py`, `ferramentas/arte/cenarios/__init__.py`, `ferramentas/arte/cenarios/aterropolis.py`, `ferramentas/gerar_prancha.py` (novos), `docs/prancha-estilo.png` (gerado), `tests/test_traco.py`, `tests/test_prancha.py` (novos), `ferramentas/README.md`, `README.md`, `CONTRIBUTING.md`, `LOG.md`.
+
+**Motivo / observações:**
+- D19: validar o estilo da arte por código antes de qualquer animação (R1).
+- Testes: 10 → 24 (curvas, rotação, determinismo da linha viva e do grão, halo que separa reciclável de proibido, resíduos distintos em tons de cinza, acentos do letreiro, prancha sempre igual).
+- Conferido à mão pelo Claude, abrindo a imagem gerada: corrigidas as solas que pareciam rodas (a ponta da perna aparecia sob a bota), o canhão que cobria o rosto no pulo, a faixa da cor ativa pequena demais e a garrafa PET que parecia um frasco de ketchup.
+- Falta a aprovação do João (D19); ajustes pedidos entram neste mesmo PR antes do merge.
+- A prancha não é conferida pixel a pixel no CI; essa conferência entre sistemas entra com os spritesheets na Fase 3 (R10).

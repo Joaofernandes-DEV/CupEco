@@ -16,6 +16,8 @@ dependencies = ["pygame-ce>=2.5,<3"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6"]
+# Geradores de arte (D10, D27). Versão fixa: a mesma arte sai igual em qualquer máquina.
+ferramentas = ["pillow==12.3.0"]
 
 [project.gui-scripts]
 cupeco = "cupeco.__main__:main"
@@ -32,6 +34,8 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM", "N"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# A raiz entra no caminho de importação para os testes alcançarem `ferramentas/`.
+pythonpath = ["."]
 filterwarnings = [
     # Aviso esperado do driver de vídeo "dummy" usado nos testes sem janela.
     "ignore:no fast renderer available",

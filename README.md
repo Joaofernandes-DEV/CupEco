@@ -34,7 +34,7 @@ python -m venv .venv
 Ative o ambiente virtual (Windows: `.venv\Scripts\activate`; Linux/macOS: `source .venv/bin/activate`) e rode:
 
 ```bash
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,ferramentas]"
 python -m cupeco
 ```
 
